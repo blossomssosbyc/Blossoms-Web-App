@@ -1,7 +1,8 @@
 import { Link, useLocation } from "wouter";
-import { Beaker, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import blossomsLogo from "@assets/images/blossoms_logo.png";
 
 export default function Navbar() {
   const [location] = useLocation();
@@ -21,18 +22,10 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <Link
             href="/"
-            className="flex items-center gap-2 hover-elevate active-elevate-2 px-3 py-2 rounded-lg transition-all"
+            className="flex items-center hover-elevate active-elevate-2 px-3 py-2 rounded-lg transition-all"
             data-testid="link-home"
           >
-            <Beaker className="w-6 h-6 text-primary" />
-            <div className="flex flex-col">
-              <span className="font-bold text-lg leading-none">
-                Blossoms 2025
-              </span>
-              <span className="text-xs text-muted-foreground">
-                School of Sciences
-              </span>
-            </div>
+            <img src={blossomsLogo} alt="Blossoms Logo" className="h-10 w-auto" />
           </Link>
 
           <div className="hidden md:flex items-center gap-2">
