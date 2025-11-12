@@ -29,7 +29,11 @@ export default function Navbar() {
 
           <div className="hidden md:flex items-center gap-2">
             {navLinks.map((link) => (
-              <Link key={link.path} href={link.path} data-testid={`link-${link.label.toLowerCase().replace(/\s+/g, '-')}`}>
+              <Link
+                key={link.path}
+                href={link.path}
+                data-testid={`link-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
+              >
                 <Button
                   variant={location === link.path ? "secondary" : "ghost"}
                   size="sm"
@@ -48,7 +52,11 @@ export default function Navbar() {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             data-testid="button-mobile-menu"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
           </Button>
         </div>
       </div>
@@ -57,7 +65,11 @@ export default function Navbar() {
         <div className="md:hidden border-t border-border bg-card">
           <div className="px-4 py-4 space-y-2">
             {navLinks.map((link) => (
-              <Link key={link.path} href={link.path} data-testid={`link-mobile-${link.label.toLowerCase().replace(/\s+/g, '-')}`}>
+              <Link
+                key={link.path}
+                href={link.path}
+                data-testid={`link-mobile-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
+              >
                 <Button
                   variant={location === link.path ? "secondary" : "ghost"}
                   className="w-full justify-start font-medium"
