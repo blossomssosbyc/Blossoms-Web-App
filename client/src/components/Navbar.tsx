@@ -19,11 +19,19 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 backdrop-blur-lg bg-background/80 border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2 hover-elevate active-elevate-2 px-3 py-2 rounded-lg transition-all" data-testid="link-home">
+          <Link
+            href="/"
+            className="flex items-center gap-2 hover-elevate active-elevate-2 px-3 py-2 rounded-lg transition-all"
+            data-testid="link-home"
+          >
             <Beaker className="w-6 h-6 text-primary" />
             <div className="flex flex-col">
-              <span className="font-bold text-lg leading-none">Blossoms 2024</span>
-              <span className="text-xs text-muted-foreground">School of Sciences</span>
+              <span className="font-bold text-lg leading-none">
+                Blossoms 2025
+              </span>
+              <span className="text-xs text-muted-foreground">
+                School of Sciences
+              </span>
             </div>
           </Link>
 
