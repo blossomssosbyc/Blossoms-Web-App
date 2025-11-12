@@ -25,7 +25,7 @@ export default function Navbar() {
             className="flex items-center hover-elevate active-elevate-2 px-3 py-2 rounded-lg transition-all"
             data-testid="link-home"
           >
-            <img src={blossomsLogo} alt="Blossoms Logo" className="h-10 w-auto" />
+            <img src={blossomsLogo} alt="Blossoms Logo" className="h-12 w-auto" />
           </Link>
 
           <div className="hidden md:flex items-center gap-2">
