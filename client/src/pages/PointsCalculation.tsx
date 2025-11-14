@@ -42,7 +42,7 @@ export default function PointsCalculation() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8 fade-in-on-load">
         <div>
           <h1 className="text-4xl font-bold mb-2">Points Dashboard</h1>
           <p className="text-muted-foreground">Track department performance and rankings</p>

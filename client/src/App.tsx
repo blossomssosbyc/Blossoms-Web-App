@@ -9,6 +9,7 @@ import PointsCalculation from "@/pages/PointsCalculation";
 import EventsTimeline from "@/pages/EventsTimeline";
 import Gallery from "@/pages/Gallery";
 import ReportGeneration from "@/pages/ReportGeneration";
+import MenuPage from "@/pages/MenuPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/timeline" component={EventsTimeline} />
       <Route path="/gallery" component={Gallery} />
       <Route path="/report" component={ReportGeneration} />
+      <Route path="/menu" component={MenuPage} />
       <Route component={NotFound} />
     </Switch>
   );

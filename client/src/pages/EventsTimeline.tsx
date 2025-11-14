@@ -1,6 +1,13 @@
 import TimelineItem from "@/components/TimelineItem";
 
-const events = [
+const events: Array<{
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  location: string;
+  position: "left" | "right";
+}> = [
   { title: "Greeting Card Making", description: "Art event for creative greeting card design.", date: "November 10, 2025", time: "4:30 PM", location: "B-614 & 613", position: "left" },
   { title: "Extempore", description: "Literary event featuring impromptu speeches.", date: "November 10, 2025", time: "4:30 PM", location: "Seminar Hall 2", position: "right" },
   { title: "Photography", description: "Art event capturing campus moments.", date: "November 11, 2025", time: "4:30 PM", location: "B-611", position: "left" },
@@ -58,7 +65,7 @@ function getStatus(
 export default function EventsTimeline() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto px-4 py-8 fade-in-on-load">
         <div className="mb-12">
           <h1 className="text-4xl font-bold mb-2">Events Timeline</h1>
           <p className="text-muted-foreground">Schedule for Blossoms 2025-26</p>

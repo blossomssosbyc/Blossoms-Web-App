@@ -44,7 +44,7 @@ export default function HomePage() {
   const upcomingToday = useMemo(() => getTodaysUpcomingEvents(allEvents), []);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen fade-in-on-load">
       {/* Hero Section */}
       <section
         className="relative h-[600px] flex items-center justify-center bg-cover bg-center"
