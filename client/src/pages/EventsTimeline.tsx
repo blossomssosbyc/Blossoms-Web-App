@@ -1,13 +1,7 @@
+import React, { useEffect, useRef, useState } from "react";
 import TimelineItem from "@/components/TimelineItem";
 
-const events: Array<{
-  title: string;
-  description: string;
-  date: string;
-  time: string;
-  location: string;
-  position: "left" | "right";
-}> = [
+const events = [
   { title: "Greeting Card Making", description: "Art event for creative greeting card design.", date: "November 10, 2025", time: "4:30 PM", location: "B-614 & 613", position: "left" },
   { title: "Extempore", description: "Literary event featuring impromptu speeches.", date: "November 10, 2025", time: "4:30 PM", location: "Seminar Hall 2", position: "right" },
   { title: "Photography", description: "Art event capturing campus moments.", date: "November 11, 2025", time: "4:30 PM", location: "B-611", position: "left" },
@@ -44,27 +38,38 @@ const events: Array<{
   { title: "Proscenium", description: "Stage drama competition for theatre teams.", date: "November 22, 2025", time: "12:00 PM", location: "KEC Auditorium", position: "right" },
 ];
 
-// Helper to convert date+time to Date object
-function eventDateTime(event: { date: string; time: string; }) {
+function eventDateTime(event: { date: string; time: string }) {
   return new Date(`${event.date} ${event.time} GMT+0530`);
 }
 
-// Sets status for TimelineItem ("ongoing" is within 90 minutes after start)
-function getStatus(
-  event: { date: string; time: string }
-): "completed" | "ongoing" | "upcoming" {
+function getStatus(event: { date: string; time: string }): "completed" | "ongoing" | "upcoming" {
   const now = new Date();
   const start = eventDateTime(event);
-  const end = new Date(start.getTime() + 90 * 60000); // 90 min duration
-
+  const end = new Date(start.getTime() + 90 * 60000);
   if (now < start) return "upcoming";
   if (now >= start && now <= end) return "ongoing";
   return "completed";
 }
 
 export default function EventsTimeline() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const eventRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    const now = new Date();
+    const index = events.findIndex((event) => {
+      const start = eventDateTime(event);
+      const end = new Date(start.getTime() + 90 * 60000);
+      return (now >= start && now <= end) || now < start;
+    });
+    if (index !== -1 && eventRefs.current[index]) {
+      eventRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, []);
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" ref={containerRef} style={{ position: "relative" }}>
       <div className="max-w-5xl mx-auto px-4 py-8 fade-in-on-load">
         <div className="mb-12">
           <h1 className="text-4xl font-bold mb-2">Events Timeline</h1>
@@ -74,16 +79,23 @@ export default function EventsTimeline() {
           <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-border hidden lg:block" />
           <div className="space-y-0">
             {events.map((event, index) => (
-              <TimelineItem
+              <div
                 key={index}
-                title={event.title}
-                description={event.description}
-                date={event.date}
-                time={event.time}
-                location={event.location}
-                status={getStatus(event)}
-                position={event.position}
-              />
+                ref={(el) => (eventRefs.current[index] = el)}
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              >
+                <TimelineItem
+                  title={event.title}
+                  description={event.description}
+                  date={event.date}
+                  time={event.time}
+                  location={event.location}
+                  status={getStatus(event)}
+                  position={event.position}
+                  highlighted={hoveredIndex === index}
+                />
+              </div>
             ))}
           </div>
         </div>

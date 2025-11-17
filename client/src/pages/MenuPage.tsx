@@ -10,7 +10,7 @@ const menuItems = [
 
 export default function MenuPage() {
   return (
-    <div className="h-screen w-screen relative bg-primary" data-testid="page-menu">
+    <div className="h-screen w-screen relative bg-background" data-testid="page-menu">
       <FlowingMenu items={menuItems} />
     </div>
   );

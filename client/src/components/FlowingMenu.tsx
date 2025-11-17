@@ -81,7 +81,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
   const repeatedMarqueeContent = React.useMemo(() => {
     return Array.from({ length: 4 }).map((_, idx) => (
       <div key={idx} className="flex items-center">
-        <span className="text-primary uppercase font-normal text-[4vh] leading-[1.2] p-[1vh_1vw_0]">
+        <span className="text-background uppercase font-normal text-[4vh] leading-[1.2] p-[1vh_1vw_0]">
           {text}
         </span>
         <div
@@ -93,10 +93,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
   }, [text, image]);
 
   return (
-    <div
-      className="flex-1 relative overflow-hidden text-center border-t border-secondary/30"
-      ref={itemRef}
-    >
+    <div className="flex-1 relative overflow-hidden text-center" ref={itemRef}>
       <a
         className="flex items-center justify-center h-full relative cursor-pointer uppercase no-underline font-semibold text-primary-foreground text-[4vh] hover:text-primary focus:text-primary-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 transition-colors"
         href={link}
@@ -107,7 +104,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
         {text}
       </a>
       <div
-        className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none bg-accent translate-y-[101%]"
+        className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none bg-white translate-y-[101%]"
         ref={marqueeRef}
       >
         <div className="h-full w-[200%] flex" ref={marqueeInnerRef}>
