@@ -186,57 +186,81 @@ export default function PointsOfContact() {
             SWO Coordinators
           </h2>
 
-          <MagicBento enableStars enableBorderGlow>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <MagicBento enableStars enableSpotlight enableBorderGlow>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: "1.5rem",
+              }}
+            >
               {SWO_COORDINATORS.map((p, idx) => (
                 <ParticleCard
                   key={p.name || `coord-${idx}`}
-                  className="card card--border-glow p-10 rounded-3xl min-h-[200px]"
+                  className="card card--border-glow"
+                  style={{ padding: "1.5rem", borderRadius: "0.75rem" }}
                 >
-                  <div className="flex items-center gap-6">
-                    <div className="flex-shrink-0">
-                      <div className="w-20 h-20 rounded-xl bg-white/6 flex items-center justify-center text-white/70 text-base font-semibold">
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "1rem",
+                    }}
+                  >
+                    {/* Designation - Most Visible */}
+                    <div
+                      style={{
+                        color: "#FFD166",
+                        fontSize: "1.18rem",
+                        fontWeight: 800,
+                        textShadow: "0 4px 14px rgba(0,0,0,0.6)",
+                        letterSpacing: "0.2px",
+                      }}
+                    >
+                      {p.role || "— Designation —"}
+                    </div>
+
+                    {/* Photo + Name Row */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem",
+                      }}
+                    >
+                      <div
+                        style={{
+                          color: "rgba(255,255,255,0.6)",
+                          fontSize: "0.875rem",
+                          minWidth: "60px",
+                          textAlign: "center",
+                        }}
+                      >
                         Photo
                       </div>
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-2xl font-semibold text-white">
+                      <div style={{ color: "white", fontWeight: "bold" }}>
                         {p.name || "— Name —"}
                       </div>
-                      <div className="text-sm text-white/60">
-                        {p.role || "— Designation —"}
-                      </div>
-                      <div className="flex flex-col gap-1 mt-4 text-sm">
-                        {p.email ? (
-                          <a
-                            href={`mailto:${p.email}`}
-                            className="flex items-center gap-3 text-white/70 hover:text-white"
-                          >
-                            <Mail className="w-4 h-4" />
-                            <span className="break-all">{p.email}</span>
-                          </a>
-                        ) : (
-                          <div className="flex items-center gap-3 text-white/40">
-                            <Mail className="w-4 h-4" />
-                            <span>email@example.edu</span>
-                          </div>
-                        )}
+                    </div>
 
-                        {p.phone ? (
-                          <a
-                            href={`tel:${p.phone}`}
-                            className="flex items-center gap-3 text-white/70 hover:text-white"
-                          >
-                            <Phone className="w-4 h-4" />
-                            <span>{p.phone}</span>
-                          </a>
-                        ) : (
-                          <div className="flex items-center gap-3 text-white/40">
-                            <Phone className="w-4 h-4" />
-                            <span>+91-00000-00000</span>
-                          </div>
-                        )}
-                      </div>
+                    {/* Email */}
+                    <div
+                      style={{
+                        color: "rgba(255,255,255,0.7)",
+                        fontSize: "0.875rem",
+                      }}
+                    >
+                      {p.email || "email@example.edu"}
+                    </div>
+
+                    {/* Phone */}
+                    <div
+                      style={{
+                        color: "rgba(255,255,255,0.7)",
+                        fontSize: "0.875rem",
+                      }}
+                    >
+                      {p.phone || "+91-00000-00000"}
                     </div>
                   </div>
                 </ParticleCard>
@@ -253,56 +277,80 @@ export default function PointsOfContact() {
           </h2>
 
           <MagicBento enableBorderGlow>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: "1.5rem",
+              }}
+            >
               {SWO_HEADS.map((p, idx) => (
                 <ParticleCard
                   key={p.name || `head-${idx}`}
-                  className="card card--border-glow p-10 rounded-3xl min-h-[200px]"
+                  className="card card--border-glow"
+                  style={{ padding: "1.5rem", borderRadius: "0.75rem" }}
                 >
-                  <div className="flex items-center gap-6">
-                    <div className="flex-shrink-0">
-                      <div className="w-20 h-20 rounded-xl bg-white/6 flex items-center justify-center text-white/70 text-base font-semibold">
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "1rem",
+                    }}
+                  >
+                    {/* Designation - Most Visible */}
+                    <div
+                      style={{
+                        color: "#FFD166",
+                        fontSize: "1.18rem",
+                        fontWeight: 800,
+                        textShadow: "0 4px 14px rgba(0,0,0,0.6)",
+                        letterSpacing: "0.2px",
+                      }}
+                    >
+                      {p.role || "— Designation —"}
+                    </div>
+
+                    {/* Photo + Name Row */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem",
+                      }}
+                    >
+                      <div
+                        style={{
+                          color: "rgba(255,255,255,0.6)",
+                          fontSize: "0.875rem",
+                          minWidth: "60px",
+                          textAlign: "center",
+                        }}
+                      >
                         Photo
                       </div>
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-2xl font-semibold text-white">
+                      <div style={{ color: "white", fontWeight: "bold" }}>
                         {p.name || "— Name —"}
                       </div>
-                      <div className="text-sm text-white/60">
-                        {p.role || "— Designation —"}
-                      </div>
-                      <div className="flex flex-col gap-1 mt-4 text-sm">
-                        {p.email ? (
-                          <a
-                            href={`mailto:${p.email}`}
-                            className="flex items-center gap-3 text-white/70 hover:text-white"
-                          >
-                            <Mail className="w-4 h-4" />
-                            <span className="break-all">{p.email}</span>
-                          </a>
-                        ) : (
-                          <div className="flex items-center gap-3 text-white/40">
-                            <Mail className="w-4 h-4" />
-                            <span>email@example.edu</span>
-                          </div>
-                        )}
+                    </div>
 
-                        {p.phone ? (
-                          <a
-                            href={`tel:${p.phone}`}
-                            className="flex items-center gap-3 text-white/70 hover:text-white"
-                          >
-                            <Phone className="w-4 h-4" />
-                            <span>{p.phone}</span>
-                          </a>
-                        ) : (
-                          <div className="flex items-center gap-3 text-white/40">
-                            <Phone className="w-4 h-4" />
-                            <span>+91-00000-00000</span>
-                          </div>
-                        )}
-                      </div>
+                    {/* Email */}
+                    <div
+                      style={{
+                        color: "rgba(255,255,255,0.7)",
+                        fontSize: "0.875rem",
+                      }}
+                    >
+                      {p.email || "email@example.edu"}
+                    </div>
+
+                    {/* Phone */}
+                    <div
+                      style={{
+                        color: "rgba(255,255,255,0.7)",
+                        fontSize: "0.875rem",
+                      }}
+                    >
+                      {p.phone || "+91-00000-00000"}
                     </div>
                   </div>
                 </ParticleCard>
@@ -319,59 +367,83 @@ export default function PointsOfContact() {
           </h2>
 
           <MagicBento enableBorderGlow>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: "1.5rem",
+              }}
+            >
               {FACULTY_REPRESENTATIVES.flatMap((group) =>
                 group.reps.map((r, idx) => (
                   <ParticleCard
                     key={`${group.school}-${r.name || idx}`}
-                    className="card card--border-glow p-10 rounded-3xl min-h-[200px]"
+                    className="card card--border-glow"
+                    style={{ padding: "1.5rem", borderRadius: "0.75rem" }}
                   >
-                    <div className="flex items-center gap-6">
-                      <div className="flex-shrink-0">
-                        <div className="w-20 h-20 rounded-xl bg-white/6 flex items-center justify-center text-white/70 text-base font-semibold">
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "1rem",
+                      }}
+                    >
+                      {/* Designation + School - Most Visible */}
+                      <div
+                        style={{
+                          color: "#FFD166",
+                          fontSize: "1.18rem",
+                          fontWeight: 800,
+                          textShadow: "0 4px 14px rgba(0,0,0,0.6)",
+                          letterSpacing: "0.2px",
+                        }}
+                      >
+                        {(r.role || "Faculty Representative") +
+                          " • " +
+                          group.school}
+                      </div>
+
+                      {/* Photo + Name Row */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "1rem",
+                        }}
+                      >
+                        <div
+                          style={{
+                            color: "rgba(255,255,255,0.6)",
+                            fontSize: "0.875rem",
+                            minWidth: "60px",
+                            textAlign: "center",
+                          }}
+                        >
                           Photo
                         </div>
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-2xl font-semibold text-white">
+                        <div style={{ color: "white", fontWeight: "bold" }}>
                           {r.name || "— Name —"}
                         </div>
-                        <div className="text-sm text-white/60">
-                          {(r.role || "Faculty Representative") +
-                            " • " +
-                            group.school}
-                        </div>
-                        <div className="flex flex-col gap-1 mt-4 text-sm">
-                          {r.email ? (
-                            <a
-                              href={`mailto:${r.email}`}
-                              className="flex items-center gap-3 text-white/70 hover:text-white"
-                            >
-                              <Mail className="w-4 h-4" />
-                              <span className="break-all">{r.email}</span>
-                            </a>
-                          ) : (
-                            <div className="flex items-center gap-3 text-white/40">
-                              <Mail className="w-4 h-4" />
-                              <span>email@example.edu</span>
-                            </div>
-                          )}
+                      </div>
 
-                          {r.phone ? (
-                            <a
-                              href={`tel:${r.phone}`}
-                              className="flex items-center gap-3 text-white/70 hover:text-white"
-                            >
-                              <Phone className="w-4 h-4" />
-                              <span>{r.phone}</span>
-                            </a>
-                          ) : (
-                            <div className="flex items-center gap-3 text-white/40">
-                              <Phone className="w-4 h-4" />
-                              <span>+91-00000-00000</span>
-                            </div>
-                          )}
-                        </div>
+                      {/* Email */}
+                      <div
+                        style={{
+                          color: "rgba(255,255,255,0.7)",
+                          fontSize: "0.875rem",
+                        }}
+                      >
+                        {r.email || "email@example.edu"}
+                      </div>
+
+                      {/* Phone */}
+                      <div
+                        style={{
+                          color: "rgba(255,255,255,0.7)",
+                          fontSize: "0.875rem",
+                        }}
+                      >
+                        {r.phone || "+91-00000-00000"}
                       </div>
                     </div>
                   </ParticleCard>
@@ -389,59 +461,83 @@ export default function PointsOfContact() {
           </h2>
 
           <MagicBento enableBorderGlow>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
+                gap: "1.5rem",
+              }}
+            >
               {STUDENT_REPRESENTATIVES.flatMap((group) =>
                 group.reps.map((r, idx) => (
                   <ParticleCard
                     key={`${group.school}-${r.name || idx}`}
-                    className="card card--border-glow p-10 rounded-3xl min-h-[200px]"
+                    className="card card--border-glow"
+                    style={{ padding: "1.5rem", borderRadius: "0.75rem" }}
                   >
-                    <div className="flex items-center gap-6">
-                      <div className="flex-shrink-0">
-                        <div className="w-20 h-20 rounded-xl bg-white/6 flex items-center justify-center text-white/70 text-base font-semibold">
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "1rem",
+                      }}
+                    >
+                      {/* Designation + School - Most Visible */}
+                      <div
+                        style={{
+                          color: "#FFD166",
+                          fontSize: "1.18rem",
+                          fontWeight: 800,
+                          textShadow: "0 4px 14px rgba(0,0,0,0.6)",
+                          letterSpacing: "0.2px",
+                        }}
+                      >
+                        {(r.role || "Student Representative") +
+                          " • " +
+                          group.school}
+                      </div>
+
+                      {/* Photo + Name Row */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "1rem",
+                        }}
+                      >
+                        <div
+                          style={{
+                            color: "rgba(255,255,255,0.6)",
+                            fontSize: "0.875rem",
+                            minWidth: "60px",
+                            textAlign: "center",
+                          }}
+                        >
                           Photo
                         </div>
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-2xl font-semibold text-white">
+                        <div style={{ color: "white", fontWeight: "bold" }}>
                           {r.name || "— Name —"}
                         </div>
-                        <div className="text-sm text-white/60">
-                          {(r.role || "Student Representative") +
-                            " • " +
-                            group.school}
-                        </div>
-                        <div className="flex flex-col gap-1 mt-4 text-sm">
-                          {r.email ? (
-                            <a
-                              href={`mailto:${r.email}`}
-                              className="flex items-center gap-3 text-white/70 hover:text-white"
-                            >
-                              <Mail className="w-4 h-4" />
-                              <span className="break-all">{r.email}</span>
-                            </a>
-                          ) : (
-                            <div className="flex items-center gap-3 text-white/40">
-                              <Mail className="w-4 h-4" />
-                              <span>email@example.edu</span>
-                            </div>
-                          )}
+                      </div>
 
-                          {r.phone ? (
-                            <a
-                              href={`tel:${r.phone}`}
-                              className="flex items-center gap-3 text-white/70 hover:text-white"
-                            >
-                              <Phone className="w-4 h-4" />
-                              <span>{r.phone}</span>
-                            </a>
-                          ) : (
-                            <div className="flex items-center gap-3 text-white/40">
-                              <Phone className="w-4 h-4" />
-                              <span>+91-00000-00000</span>
-                            </div>
-                          )}
-                        </div>
+                      {/* Email */}
+                      <div
+                        style={{
+                          color: "rgba(255,255,255,0.7)",
+                          fontSize: "0.875rem",
+                        }}
+                      >
+                        {r.email || "email@example.edu"}
+                      </div>
+
+                      {/* Phone */}
+                      <div
+                        style={{
+                          color: "rgba(255,255,255,0.7)",
+                          fontSize: "0.875rem",
+                        }}
+                      >
+                        {r.phone || "+91-00000-00000"}
                       </div>
                     </div>
                   </ParticleCard>

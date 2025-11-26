@@ -492,10 +492,7 @@ const BentoCardGrid: React.FC<{
   children: React.ReactNode;
   gridRef?: React.RefObject<HTMLDivElement> | null;
 }> = ({ children, gridRef = null }) => (
-  <div
-    className="bento-section grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative"
-    ref={gridRef}
-  >
+  <div className="bento-section relative" ref={gridRef}>
     {children}
   </div>
 );
