@@ -1,102 +1,127 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { X, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Masonry from "@/components/Masonry";
+import useSmoothScroll from "@/hooks/useSmoothScroll";
 
-// Replace FILE_ID_HERE with actual Google Drive file IDs
-// Format: https://drive.google.com/uc?export=view&id=YOUR_FILE_ID
-// To get file ID: Right-click image in Drive → Get link → Copy the ID between /d/ and /view
-// Add 'event' property to each image matching one of the events from the list
+gsap.registerPlugin(ScrollTrigger);
+
 const galleryImages = [
   {
-    id: 1,
+    id: "1",
+    img: "https://drive.google.com/uc?export=view&id=FILE_ID_1",
     url: "https://drive.google.com/uc?export=view&id=FILE_ID_1",
     title: "Greeting Card Contest Winner",
     event: "Greeting Card Making",
     date: "March 11, 2024",
+    height: 400,
   },
   {
-    id: 2,
+    id: "2",
+    img: "https://drive.google.com/uc?export=view&id=FILE_ID_2",
     url: "https://drive.google.com/uc?export=view&id=FILE_ID_2",
     title: "Extempore Speech Competition",
     event: "Extempore",
     date: "March 12, 2024",
+    height: 350,
   },
   {
-    id: 3,
+    id: "3",
+    img: "https://drive.google.com/uc?export=view&id=FILE_ID_3",
     url: "https://drive.google.com/uc?export=view&id=FILE_ID_3",
     title: "Photography Exhibition",
     event: "Photography",
     date: "March 13, 2024",
+    height: 450,
   },
   {
-    id: 4,
+    id: "4",
+    img: "https://drive.google.com/uc?export=view&id=FILE_ID_4",
     url: "https://drive.google.com/uc?export=view&id=FILE_ID_4",
     title: "Debate Preliminaries",
     event: "Debate (Prelims)",
     date: "March 14, 2024",
+    height: 380,
   },
   {
-    id: 5,
+    id: "5",
+    img: "https://drive.google.com/uc?export=view&id=FILE_ID_5",
     url: "https://drive.google.com/uc?export=view&id=FILE_ID_5",
     title: "Short Film Screening",
     event: "Short Film Making",
     date: "March 15, 2024",
+    height: 500,
   },
   {
-    id: 6,
+    id: "6",
+    img: "https://drive.google.com/uc?export=view&id=FILE_ID_6",
     url: "https://drive.google.com/uc?export=view&id=FILE_ID_6",
     title: "Pencil Sketching Workshop",
     event: "Pencil Sketching",
     date: "March 11, 2024",
+    height: 420,
   },
   {
-    id: 7,
+    id: "7",
+    img: "https://drive.google.com/uc?export=view&id=FILE_ID_7",
     url: "https://drive.google.com/uc?export=view&id=FILE_ID_7",
     title: "Dance Extravaganza Finals",
     event: "Dance Extravaganza",
     date: "March 12, 2024",
+    height: 480,
   },
   {
-    id: 8,
+    id: "8",
+    img: "https://drive.google.com/uc?export=view&id=FILE_ID_8",
     url: "https://drive.google.com/uc?export=view&id=FILE_ID_8",
     title: "Western Singing Solo Performance",
     event: "Western Singing (Solo)",
     date: "March 13, 2024",
+    height: 390,
   },
   {
-    id: 9,
+    id: "9",
+    img: "https://drive.google.com/uc?export=view&id=FILE_ID_9",
     url: "https://drive.google.com/uc?export=view&id=FILE_ID_9",
     title: "Battle of Bands - Western",
     event: "Battle of Bands (Western)",
     date: "March 16, 2024",
+    height: 440,
   },
   {
-    id: 10,
+    id: "10",
+    img: "https://drive.google.com/uc?export=view&id=FILE_ID_10",
     url: "https://drive.google.com/uc?export=view&id=FILE_ID_10",
     title: "Rangoli Design Competition",
     event: "Rangoli Design",
     date: "March 17, 2024",
+    height: 360,
   },
   {
-    id: 11,
+    id: "11",
+    img: "https://drive.google.com/uc?export=view&id=FILE_ID_11",
     url: "https://drive.google.com/uc?export=view&id=FILE_ID_11",
     title: "Quiz Finals",
     event: "Quiz (Finals)",
     date: "March 18, 2024",
+    height: 410,
   },
   {
-    id: 12,
+    id: "12",
+    img: "https://drive.google.com/uc?export=view&id=FILE_ID_12",
     url: "https://drive.google.com/uc?export=view&id=FILE_ID_12",
     title: "Street Theatre Performance",
     event: "Street Theatre",
     date: "March 19, 2024",
+    height: 470,
   },
 ];
 
@@ -154,7 +179,7 @@ export default function Gallery() {
     return eventMatch;
   });
 
-  const openLightbox = (index) => {
+  const openLightbox = (index: number) => {
     setCurrentImageIndex(index);
     setLightboxOpen(true);
   };
@@ -169,13 +194,16 @@ export default function Gallery() {
 
   const prevImage = () => {
     setCurrentImageIndex(
-      (prev) => (prev - 1 + filteredImages.length) % filteredImages.length,
+      (prev) => (prev - 1 + filteredImages.length) % filteredImages.length
     );
   };
 
+  // Enable smooth, damped scrolling for premium feel
+  useSmoothScroll();
+
   // Keyboard navigation for lightbox
-  useState(() => {
-    const handleKeyDown = (e) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (!lightboxOpen) return;
       if (e.key === "ArrowRight") nextImage();
       if (e.key === "ArrowLeft") prevImage();
@@ -184,23 +212,60 @@ export default function Gallery() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [lightboxOpen]);
+  }, [lightboxOpen, nextImage, prevImage]);
+
+  // Scroll reveal animations for gallery sections
+  useEffect(() => {
+    const revealElements = document.querySelectorAll("[data-reveal]");
+
+    revealElements.forEach((element) => {
+      gsap.fromTo(
+        element,
+        {
+          opacity: 0,
+          y: 50,
+          scale: 0.95,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.8,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: element,
+            start: "top 80%",
+            end: "top 20%",
+            scrub: 0.5,
+            markers: false,
+          },
+        }
+      );
+    });
+
+    return () => {
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    };
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+    <div className="min-h-screen bg-black text-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+        <div className="text-center space-y-4 py-12" data-reveal>
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-black bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent leading-tight">
             Gallery
           </h1>
-          <p className="text-muted-foreground text-lg">
-            Moments from Blossoms 2024
+          <p className="text-lg md:text-xl text-white/70">
+            Moments from Blossoms 2025
           </p>
         </div>
 
         {/* Event Filters - Featured + Dropdown */}
-        <div className="flex flex-wrap justify-center items-center gap-2">
+        <div
+          className="flex flex-wrap justify-center items-center gap-3 py-8"
+          data-reveal
+        >
           {/* Featured Event Buttons */}
           {featuredEvents.map((event) => (
             <Button
@@ -208,7 +273,9 @@ export default function Gallery() {
               variant={selectedEvent === event ? "default" : "outline"}
               onClick={() => setSelectedEvent(event)}
               className="transition-all hover:scale-105"
-              data-testid={`button-event-${event.toLowerCase().replace(/\s+/g, "-")}`}
+              data-testid={`button-event-${event
+                .toLowerCase()
+                .replace(/\s+/g, "-")}`}
             >
               {event}
             </Button>
@@ -231,13 +298,15 @@ export default function Gallery() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="w-[280px] max-h-[400px] overflow-y-auto"
+              className="w-[280px] max-h-[400px] overflow-y-auto bg-gray-900 border-white/10"
             >
               {dropdownEvents.map((event) => (
                 <DropdownMenuItem
                   key={event}
                   onClick={() => setSelectedEvent(event)}
-                  className={selectedEvent === event ? "bg-secondary" : ""}
+                  className={`${
+                    selectedEvent === event ? "bg-purple-600/40" : ""
+                  } text-white hover:bg-purple-600/30 cursor-pointer`}
                 >
                   {event}
                 </DropdownMenuItem>
@@ -247,65 +316,66 @@ export default function Gallery() {
         </div>
 
         {/* Images Count */}
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm text-white/50" data-reveal>
           Showing {filteredImages.length}{" "}
           {filteredImages.length === 1 ? "photo" : "photos"}
         </p>
 
-        {/* Gallery Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredImages.map((image, index) => (
-            <Card
-              key={image.id}
-              className="overflow-hidden cursor-pointer hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group border-2 hover:border-primary"
-              onClick={() => openLightbox(index)}
-              data-testid={`image-${image.id}`}
-            >
-              <div className="relative aspect-square overflow-hidden bg-secondary">
-                <img
-                  src={image.url}
-                  alt={image.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="absolute bottom-0 left-0 right-0 p-4 text-white space-y-1">
-                    <p className="font-semibold text-lg">{image.title}</p>
-                    <div className="flex flex-col gap-1 text-sm">
-                      <span className="text-white/90">{image.date}</span>
-                      {image.event && (
-                        <span className="px-2 py-1 bg-primary/60 rounded-full text-xs backdrop-blur-sm w-fit">
-                          {image.event}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+        {/* Gallery Section with Background */}
+        <section
+          className="py-12 px-4 relative overflow-hidden rounded-2xl"
+          data-reveal
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black rounded-2xl" />
 
-        {/* Empty State */}
-        {filteredImages.length === 0 && (
-          <div className="text-center py-16 space-y-4">
-            <p className="text-2xl font-semibold text-muted-foreground">
-              No photos found
-            </p>
-            <p className="text-muted-foreground">
-              Try selecting a different category
-            </p>
+          {/* Gallery Masonry */}
+          <div className="relative z-10">
+            {filteredImages.length > 0 ? (
+              <Masonry
+                items={filteredImages.map((img) => ({
+                  id: img.id,
+                  img: img.img,
+                  url: img.url,
+                  height: img.height,
+                }))}
+                ease="power3.out"
+                duration={0.6}
+                stagger={0.05}
+                animateFrom="bottom"
+                scaleOnHover={true}
+                hoverScale={0.95}
+                blurToFocus={true}
+                colorShiftOnHover={false}
+                onItemClick={(id) => {
+                  const index = filteredImages.findIndex(
+                    (img) => img.id === id
+                  );
+                  if (index !== -1) {
+                    openLightbox(index);
+                  }
+                }}
+              />
+            ) : (
+              <div className="text-center py-24 space-y-4">
+                <p className="text-2xl font-semibold text-white/60">
+                  No photos found
+                </p>
+                <p className="text-white/40">
+                  Try selecting a different category
+                </p>
+              </div>
+            )}
           </div>
-        )}
+        </section>
 
         {/* Lightbox */}
         {lightboxOpen && (
-          <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="fixed inset-0 z-50 bg-black/98 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
             {/* Close Button */}
             <Button
               variant="ghost"
               size="icon"
-              className="absolute top-4 right-4 text-white hover:bg-white/20 z-10"
+              className="absolute top-6 right-6 text-white hover:bg-white/10 z-10 rounded-full"
               onClick={closeLightbox}
               data-testid="button-close-lightbox"
             >
@@ -316,7 +386,7 @@ export default function Gallery() {
             <Button
               variant="ghost"
               size="icon"
-              className="absolute left-4 text-white hover:bg-white/20 z-10 hidden md:flex"
+              className="absolute left-6 text-white hover:bg-white/10 z-10 hidden md:flex rounded-full"
               onClick={prevImage}
               data-testid="button-prev-image"
             >
@@ -327,7 +397,7 @@ export default function Gallery() {
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-4 text-white hover:bg-white/20 z-10 hidden md:flex"
+              className="absolute right-6 text-white hover:bg-white/10 z-10 hidden md:flex rounded-full"
               onClick={nextImage}
               data-testid="button-next-image"
             >
@@ -335,20 +405,20 @@ export default function Gallery() {
             </Button>
 
             {/* Image Counter */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white bg-black/50 px-4 py-2 rounded-full text-sm backdrop-blur-sm">
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 text-white bg-black/60 px-4 py-2 rounded-full text-sm backdrop-blur-md border border-white/10">
               {currentImageIndex + 1} / {filteredImages.length}
             </div>
 
             {/* Main Image Container */}
             <div className="max-w-6xl max-h-[90vh] flex flex-col items-center gap-6">
               <img
-                src={filteredImages[currentImageIndex].url}
+                src={filteredImages[currentImageIndex].img}
                 alt={filteredImages[currentImageIndex].title}
                 className="max-w-full max-h-[75vh] object-contain rounded-lg shadow-2xl"
               />
 
               {/* Image Details */}
-              <div className="text-center text-white space-y-2 bg-black/50 px-6 py-4 rounded-lg backdrop-blur-sm">
+              <div className="text-center text-white space-y-2 bg-gradient-to-r from-purple-900/40 to-pink-900/40 px-8 py-5 rounded-lg backdrop-blur-md border border-white/10">
                 <p className="text-2xl font-bold">
                   {filteredImages[currentImageIndex].title}
                 </p>
@@ -357,7 +427,7 @@ export default function Gallery() {
                   {filteredImages[currentImageIndex].event && (
                     <>
                       <span>•</span>
-                      <span className="px-3 py-1 bg-primary/40 rounded-full backdrop-blur-sm">
+                      <span className="px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full backdrop-blur-sm">
                         {filteredImages[currentImageIndex].event}
                       </span>
                     </>
@@ -370,7 +440,7 @@ export default function Gallery() {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="text-white border-white/20 hover:bg-white/20"
+                  className="text-white border-white/20 hover:bg-white/10 rounded-full"
                   onClick={prevImage}
                 >
                   <ChevronLeft className="w-6 h-6" />
@@ -378,7 +448,7 @@ export default function Gallery() {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="text-white border-white/20 hover:bg-white/20"
+                  className="text-white border-white/20 hover:bg-white/10 rounded-full"
                   onClick={nextImage}
                 >
                   <ChevronRight className="w-6 h-6" />
@@ -387,6 +457,9 @@ export default function Gallery() {
             </div>
           </div>
         )}
+
+        {/* Footer Glow */}
+        <div className="h-32 bg-gradient-to-t from-purple-900/20 to-transparent" />
       </div>
     </div>
   );

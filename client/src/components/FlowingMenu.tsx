@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { gsap } from "gsap";
 
 interface MenuItemProps {
   link: string;
   text: string;
   image: string;
+  index?: number;
 }
 
 interface FlowingMenuProps {
@@ -12,11 +13,35 @@ interface FlowingMenuProps {
 }
 
 const FlowingMenu: React.FC<FlowingMenuProps> = ({ items = [] }) => {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Animate menu items on mount
+    const menuItems =
+      containerRef.current?.querySelectorAll("[data-menu-item]");
+    if (menuItems && menuItems.length > 0) {
+      gsap.fromTo(
+        menuItems,
+        {
+          opacity: 0,
+          y: 20,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: "expo.out",
+        }
+      );
+    }
+  }, []);
+
   return (
-    <div className="w-full h-full overflow-hidden">
+    <div className="w-full h-full overflow-hidden" ref={containerRef}>
       <nav className="flex flex-col h-full m-0 p-0">
         {items.map((item, idx) => (
-          <MenuItem key={idx} {...item} />
+          <MenuItem key={idx} {...item} index={idx} />
         ))}
       </nav>
     </div>
@@ -34,7 +59,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
     mouseX: number,
     mouseY: number,
     width: number,
-    height: number,
+    height: number
   ): "top" | "bottom" => {
     const topEdgeDist = Math.pow(mouseX - width / 2, 2) + Math.pow(mouseY, 2);
     const bottomEdgeDist =
@@ -50,7 +75,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
       ev.clientX - rect.left,
       ev.clientY - rect.top,
       rect.width,
-      rect.height,
+      rect.height
     );
 
     const tl = gsap.timeline({ defaults: animationDefaults });
@@ -67,14 +92,14 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
       ev.clientX - rect.left,
       ev.clientY - rect.top,
       rect.width,
-      rect.height,
+      rect.height
     );
 
     const tl = gsap.timeline({ defaults: animationDefaults });
     tl.to(marqueeRef.current, { y: edge === "top" ? "-101%" : "101%" }).to(
       marqueeInnerRef.current,
       { y: edge === "top" ? "101%" : "-101%" },
-      "<",
+      "<"
     );
   };
 
@@ -93,7 +118,11 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
   }, [text, image]);
 
   return (
-    <div className="flex-1 relative overflow-hidden text-center" ref={itemRef}>
+    <div
+      className="flex-1 relative overflow-hidden text-center"
+      ref={itemRef}
+      data-menu-item
+    >
       <a
         className="flex items-center justify-center h-full relative cursor-pointer uppercase no-underline font-semibold text-primary-foreground text-[4vh] hover:text-primary focus:text-primary-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 transition-colors"
         href={link}

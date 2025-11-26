@@ -453,21 +453,6 @@ export default function HomePage() {
         ref={heroRef}
         className="relative h-screen flex items-center justify-center overflow-hidden"
       >
-        {/* ShapeBlur Background */}
-        <div className="absolute inset-0 opacity-30">
-          <ShapeBlur
-            variation={0}
-            pixelRatioProp={
-              typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1
-            }
-            shapeSize={0.8}
-            roundness={0.6}
-            borderSize={0.08}
-            circleSize={0.4}
-            circleEdge={1.2}
-          />
-        </div>
-
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 via-black to-pink-900/50" />
 
@@ -584,6 +569,21 @@ export default function HomePage() {
           >
             A celebration of creativity, talent, and unity. Join us for an
             unforgettable journey through art, music, dance, and culture.
+          </ScrollReveal>
+        </div>
+      </section>
+
+      <section className="py-32 px-4 relative overflow-hidden" data-reveal>
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-pink-900/10 to-black" />
+        <div className="relative z-10 max-w-5xl mx-auto text-center">
+          <ScrollReveal
+            enableBlur={true}
+            baseOpacity={0.2}
+            baseRotation={2}
+            blurStrength={8}
+          >
+            Experience the magic of Blossoms 2025-26, where every moment
+            sparkles with joy and excitement. Let the festivities begin!
           </ScrollReveal>
         </div>
       </section>

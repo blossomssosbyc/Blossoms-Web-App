@@ -45,7 +45,7 @@ const createParticleElement = (
     background: rgba(${color}, 1);
     box-shadow: 0 0 6px rgba(${color}, 0.6);
     pointer-events: none;
-    z-index: 100;
+      z-index: 0;
     left: ${x}px;
     top: ${y}px;
   `;
@@ -372,7 +372,7 @@ const GlobalSpotlight: React.FC<{
         rgba(${glowColor}, 0.01) 65%,
         transparent 70%
       );
-      z-index: 200;
+      z-index: 0;
       opacity: 0;
       transform: translate(-50%, -50%);
       mix-blend-mode: screen;
@@ -568,7 +568,7 @@ const MagicBento: React.FC<BentoProps> = ({
             -webkit-mask-composite: xor;
             pointer-events: none;
             transition: opacity 0.3s ease;
-            z-index: 1;
+            z-index: 0;
           }
           
           .card--border-glow:hover::after {
@@ -577,6 +577,12 @@ const MagicBento: React.FC<BentoProps> = ({
           
           .card--border-glow:hover {
             box-shadow: 0 4px 20px rgba(46, 24, 78, 0.4), 0 0 30px rgba(${glowColor}, 0.2);
+          }
+
+          /* Ensure the glow pseudo-element stays behind card content so text is readable */
+          .card--border-glow > * {
+            position: relative;
+            z-index: 2;
           }
           
           .particle::before {
