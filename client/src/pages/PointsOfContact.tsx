@@ -186,7 +186,12 @@ export default function PointsOfContact() {
             SWO Coordinators
           </h2>
 
-          <MagicBento enableStars enableSpotlight enableBorderGlow>
+          <MagicBento
+            enableStars
+            enableSpotlight
+            enableBorderGlow
+            disableDefaultGrid
+          >
             <div
               style={{
                 display: "grid",
@@ -276,7 +281,7 @@ export default function PointsOfContact() {
             SWO Heads
           </h2>
 
-          <MagicBento enableBorderGlow>
+          <MagicBento enableBorderGlow disableDefaultGrid>
             <div
               style={{
                 display: "grid",
@@ -366,7 +371,7 @@ export default function PointsOfContact() {
             Blossoms Faculty Representatives
           </h2>
 
-          <MagicBento enableBorderGlow>
+          <MagicBento enableBorderGlow disableDefaultGrid>
             <div
               style={{
                 display: "grid",
@@ -460,7 +465,7 @@ export default function PointsOfContact() {
             Blossoms Student Representatives
           </h2>
 
-          <MagicBento enableBorderGlow>
+          <MagicBento enableBorderGlow disableDefaultGrid>
             <div
               style={{
                 display: "grid",

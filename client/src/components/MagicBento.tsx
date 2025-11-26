@@ -23,6 +23,7 @@ export interface BentoProps {
   glowColor?: string;
   clickEffect?: boolean;
   enableMagnetism?: boolean;
+  disableDefaultGrid?: boolean;
 }
 
 const DEFAULT_PARTICLE_COUNT = 12;
@@ -491,8 +492,16 @@ const GlobalSpotlight: React.FC<{
 const BentoCardGrid: React.FC<{
   children: React.ReactNode;
   gridRef?: React.RefObject<HTMLDivElement> | null;
-}> = ({ children, gridRef = null }) => (
-  <div className="bento-section relative" ref={gridRef}>
+  useGrid?: boolean;
+}> = ({ children, gridRef = null, useGrid = true }) => (
+  <div
+    className={
+      useGrid
+        ? "bento-section grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative"
+        : "bento-section relative"
+    }
+    ref={gridRef}
+  >
     {children}
   </div>
 );
@@ -526,6 +535,7 @@ const MagicBento: React.FC<BentoProps> = ({
   glowColor = DEFAULT_GLOW_COLOR,
   clickEffect = true,
   enableMagnetism = true,
+  disableDefaultGrid = false,
 }) => {
   const gridRef = useRef<HTMLDivElement>(null);
   const isMobile = useMobileDetection();
@@ -624,7 +634,9 @@ const MagicBento: React.FC<BentoProps> = ({
         />
       )}
 
-      <BentoCardGrid gridRef={gridRef}>{children}</BentoCardGrid>
+      <BentoCardGrid gridRef={gridRef} useGrid={!disableDefaultGrid}>
+        {children}
+      </BentoCardGrid>
     </>
   );
 };
