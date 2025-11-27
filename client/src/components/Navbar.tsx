@@ -26,6 +26,16 @@ export default function Navbar() {
                 <span>Menu</span>
               </Button>
             </Link>
+            <Link href="/admin/register" data-testid="link-admin-register">
+              <Button variant="ghost" size="sm" className="font-medium">
+                Admin Register
+              </Button>
+            </Link>
+            <Link href="/admin/dashboard" data-testid="link-admin-dashboard">
+              <Button variant="ghost" size="sm" className="font-medium">
+                Admin Dashboard
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

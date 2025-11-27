@@ -70,15 +70,56 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = 5055;
+  let port = parseInt(process.env.PORT || '5000', 10);
 
-  const host = '127.0.0.1';
+  const isWindows = process.platform === 'win32';
+  const host = isWindows ? 'localhost' : '0.0.0.0';
 
-  server.listen({
-    port,
-    host,
-    //reusePort: !isWindows,
-  }, () => {
-    log(`serving on http://${host}:${port}`);
-  });
+  // Try to bind to the requested port; if it's in use, try subsequent ports.
+  async function tryListen(startPort: number, attempts = 6) {
+    let p = startPort;
+    for (let i = 0; i < attempts; i++) {
+      try {
+        await new Promise<void>((resolve, reject) => {
+          const onError = (err: any) => {
+            server.removeListener('listening', onListening);
+            reject(err);
+          };
+
+          const onListening = () => {
+            server.removeListener('error', onError);
+            resolve();
+          };
+
+          server.once('error', onError);
+          server.once('listening', onListening);
+
+          server.listen({ port: p, host, reusePort: !isWindows });
+        });
+
+        // success
+        log(`serving on port ${p}`);
+        port = p;
+        return;
+      } catch (err: any) {
+        // if address in use, try next port
+        if (err && err.code === 'EADDRINUSE') {
+          log(`port ${p} in use, trying ${p + 1}`);
+          p++;
+          // continue loop
+        } else {
+          // unknown error - rethrow
+          throw err;
+        }
+      }
+    }
+    throw new Error("Unable to bind to any port");
+  }
+
+  try {
+    await tryListen(port, 12);
+  } catch (err: any) {
+    log(`Failed to start server: ${err?.message || err}`);
+    process.exit(1);
+  }
 })();

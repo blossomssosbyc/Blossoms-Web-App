@@ -12,11 +12,15 @@ import Gallery from "@/pages/Gallery";
 import ReportGeneration from "@/pages/ReportGeneration";
 import MenuPage from "@/pages/MenuPage";
 import NotFound from "@/pages/not-found";
+import AdminRegister from "@/pages/AdminRegister";
+import AdminDashboard from "@/pages/AdminDashboard";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
+      <Route path="/admin/register" component={AdminRegister} />
+      <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/points" component={PointsCalculation} />
       <Route path="/contacts" component={PointsOfContact} />
       <Route path="/timeline" component={EventsTimeline} />
