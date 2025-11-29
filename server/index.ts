@@ -104,7 +104,7 @@ app.use((req, res, next) => {
           server.once('error', onError);
           server.once('listening', onListening);
 
-          server.listen({ port: p, host, reusePort: !isWindows });
+          server.listen({ port: p, host });
         });
 
         // success
