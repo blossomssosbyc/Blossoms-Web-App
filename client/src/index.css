@@ -269,3 +269,16 @@
     border-color: hsl(var(--accent) / 0.3);
   }
 }
+
+/* Utility to suppress hover/active pseudo overlays (useful for logo anchors) */
+.no-hover-outline {
+  outline: none;
+  box-shadow: none;
+  border-color: transparent;
+}
+.no-hover-outline::after,
+.no-hover-outline:hover::after,
+.no-hover-outline:active::after {
+  display: none !important;
+  background: transparent !important;
+}

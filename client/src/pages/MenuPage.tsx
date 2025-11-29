@@ -27,6 +27,11 @@ const menuItems = [
     text: "Contacts",
     image: "https://picsum.photos/600/400?random=6",
   },
+  {
+    link: "/admin/register",
+    text: "Admin",
+    image: "https://picsum.photos/600/400?random=7",
+  },
 ];
 
 export default function MenuPage() {
