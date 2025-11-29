@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useEffect, useState } from "react";
+import { Link } from "wouter";
 import {
   Users,
   Trophy,
@@ -489,20 +490,24 @@ export default function HomePage() {
           </p>
 
           <div className="hero-element flex flex-wrap items-center justify-center gap-6">
-            <button className="group relative px-8 py-4 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 font-semibold text-lg overflow-hidden transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:shadow-purple-500/50">
-              <span className="relative z-10 flex items-center gap-2">
-                View Events
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </button>
+            <Link href="/timeline">
+              <button className="group relative px-8 py-4 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 font-semibold text-lg overflow-hidden transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:shadow-purple-500/50">
+                <span className="relative z-10 flex items-center gap-2">
+                  View Events
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+            </Link>
 
-            <button className="group px-8 py-4 rounded-full backdrop-blur-md bg-white/10 border-2 border-white/20 font-semibold text-lg hover:bg-white/20 transition-all duration-300 hover:scale-110">
-              <span className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                Generate Report
-              </span>
-            </button>
+            <Link href="/report">
+              <button className="group px-8 py-4 rounded-full backdrop-blur-md bg-white/10 border-2 border-white/20 font-semibold text-lg hover:bg-white/20 transition-all duration-300 hover:scale-110">
+                <span className="flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Generate Report
+                </span>
+              </button>
+            </Link>
           </div>
         </div>
 
@@ -691,21 +696,25 @@ export default function HomePage() {
                 label: "Points Dashboard",
                 desc: "View department rankings",
                 gradient: "from-purple-500 to-pink-500",
+                link: "/points",
               },
               {
                 label: "Events Timeline",
                 desc: "Full event schedule",
                 gradient: "from-blue-500 to-cyan-500",
+                link: "/timeline",
               },
               {
                 label: "Gallery",
                 desc: "Event photos & videos",
                 gradient: "from-orange-500 to-yellow-500",
+                link: "/gallery",
               },
               {
                 label: "Reports",
                 desc: "Generate custom reports",
                 gradient: "from-green-500 to-emerald-500",
+                link: "/report",
               },
             ].map((item) => {
               const cardStyle = {
@@ -716,26 +725,28 @@ export default function HomePage() {
 
               return (
                 <div key={item.label} data-reveal>
-                  <ParticleCard
-                    className="card relative overflow-hidden rounded-2xl p-6 border border-solid font-light transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)] card--border-glow"
-                    style={cardStyle}
-                    enableTilt={true}
-                    clickEffect={true}
-                    enableMagnetism={true}
-                  >
-                    <button className="w-full h-full text-left p-6 bg-transparent">
-                      <div
-                        className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-20 transition-opacity duration-500`}
-                      />
-                      <div className="relative z-10">
-                        <h3 className="text-xl font-bold mb-2 text-white group-hover:text-purple-300 transition-colors">
-                          {item.label}
-                        </h3>
-                        <p className="text-sm text-gray-400">{item.desc}</p>
-                        <ArrowRight className="w-6 h-6 mt-4 text-gray-400 group-hover:text-white group-hover:translate-x-2 transition-all" />
-                      </div>
-                    </button>
-                  </ParticleCard>
+                  <Link href={item.link}>
+                    <ParticleCard
+                      className="card relative overflow-hidden rounded-2xl p-6 border border-solid font-light transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)] card--border-glow"
+                      style={cardStyle}
+                      enableTilt={true}
+                      clickEffect={true}
+                      enableMagnetism={true}
+                    >
+                      <button className="w-full h-full text-left p-6 bg-transparent">
+                        <div
+                          className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-20 transition-opacity duration-500`}
+                        />
+                        <div className="relative z-10">
+                          <h3 className="text-xl font-bold mb-2 text-white group-hover:text-purple-300 transition-colors">
+                            {item.label}
+                          </h3>
+                          <p className="text-sm text-gray-400">{item.desc}</p>
+                          <ArrowRight className="w-6 h-6 mt-4 text-gray-400 group-hover:text-white group-hover:translate-x-2 transition-all" />
+                        </div>
+                      </button>
+                    </ParticleCard>
+                  </Link>
                 </div>
               );
             })}
