@@ -73,6 +73,16 @@ app.use((req, res, next) => {
   let port = parseInt(process.env.PORT || '5000', 10);
 
   const isWindows = process.platform === 'win32';
+  const isMac = process.platform === 'darwin';
+  const isLinux = process.platform === 'linux';
+
+  log(`Detected OS: ${process.platform} (Windows: ${isWindows}, Mac: ${isMac}, Linux: ${isLinux})`);
+
+  if (!process.env.NODE_ENV) {
+    process.env.NODE_ENV = 'development';
+    log("NODE_ENV not set, defaulting to 'development'");
+  }
+
   const host = isWindows ? 'localhost' : '0.0.0.0';
 
   // Try to bind to the requested port; if it's in use, try subsequent ports.
