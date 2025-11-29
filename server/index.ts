@@ -108,7 +108,7 @@ app.use((req, res, next) => {
         });
 
         // success
-        log(`serving on port ${p}`);
+        log(`Server running at: http://${host}:${p}`);
         port = p;
         return;
       } catch (err: any) {
