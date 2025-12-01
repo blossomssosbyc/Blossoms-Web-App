@@ -469,7 +469,7 @@ export default function HomePage() {
           <div className="hero-element mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
             <Sparkles className="w-4 h-4 text-yellow-400" />
             <span className="text-sm font-medium">
-              Annual Cultural Festival
+              Inter-School Festival
             </span>
           </div>
 
@@ -482,11 +482,11 @@ export default function HomePage() {
           </div>
 
           <p className="hero-element text-xl md:text-2xl mb-3 text-white/70">
-            Christ University Yeshwanthpur
+            CHRIST (Deemed to be University), Yeshwanthpur campus  
           </p>
 
           <p className="hero-element text-lg md:text-xl mb-12 text-white/60">
-            School of Sciences
+            In collaboration with the School of Sciences
           </p>
 
           <div className="hero-element flex flex-wrap items-center justify-center gap-6">
