@@ -83,7 +83,7 @@ app.use((req, res, next) => {
     log("NODE_ENV not set, defaulting to 'development'");
   }
 
-  const host = isWindows ? 'localhost' : '0.0.0.0';
+  const host = 'localhost';
 
   // Try to bind to the requested port; if it's in use, try subsequent ports.
   async function tryListen(startPort: number, attempts = 6) {
