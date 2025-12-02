@@ -21,21 +21,19 @@ export default function Navbar() {
             {location === "/menu" ? (
               <Button
                 variant="ghost"
-                size="sm"
                 className="font-medium flex items-center gap-2"
                 onClick={() => window.history.back()}
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
                 <span>Close</span>
               </Button>
             ) : (
               <Link href="/menu" data-testid="link-menu">
                 <Button
                   variant="ghost"
-                  size="sm"
                   className="font-medium flex items-center gap-2"
                 >
-                  <Menu className="w-5 h-5" />
+                  <Menu className="w-6 h-6" />
                   <span>Menu</span>
                 </Button>
               </Link>

@@ -147,6 +147,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AWS RDS Data Endpoints
+  router.get("/registrations", async (_req: Request, res: Response) => {
+    try {
+      const data = await storage.getRegistrations();
+      res.json(data);
+    } catch (err: any) {
+      console.error(err);
+      res.status(500).json({ message: err.message || "Error fetching registrations" });
+    }
+  });
+
+  router.get("/school-of-sciences", async (_req: Request, res: Response) => {
+    try {
+      const data = await storage.getSchoolOfSciences();
+      res.json(data);
+    } catch (err: any) {
+      console.error(err);
+      res.status(500).json({ message: err.message || "Error fetching School of Sciences data" });
+    }
+  });
+
+  router.get("/school-of-social-sciences", async (_req: Request, res: Response) => {
+    try {
+      const data = await storage.getSchoolOfSocialSciences();
+      res.json(data);
+    } catch (err: any) {
+      console.error(err);
+      res.status(500).json({ message: err.message || "Error fetching School of Social Sciences data" });
+    }
+  });
+
+  router.get("/school-of-business", async (_req: Request, res: Response) => {
+    try {
+      const data = await storage.getSchoolOfBusiness();
+      res.json(data);
+    } catch (err: any) {
+      console.error(err);
+      res.status(500).json({ message: err.message || "Error fetching School of Business data" });
+    }
+  });
+
+  router.get("/school-of-commerce", async (_req: Request, res: Response) => {
+    try {
+      const data = await storage.getSchoolOfCommerce();
+      res.json(data);
+    } catch (err: any) {
+      console.error(err);
+      res.status(500).json({ message: err.message || "Error fetching School of Commerce data" });
+    }
+  });
+
+  router.get("/school-of-psychology", async (_req: Request, res: Response) => {
+    try {
+      const data = await storage.getSchoolOfPsychology();
+      res.json(data);
+    } catch (err: any) {
+      console.error(err);
+      res.status(500).json({ message: err.message || "Error fetching School of Psychology data" });
+    }
+  });
+
+  router.get("/winners", async (_req: Request, res: Response) => {
+    try {
+      const data = await storage.getWinners();
+      res.json(data);
+    } catch (err: any) {
+      console.error(err);
+      res.status(500).json({ message: err.message || "Error fetching Winners list" });
+    }
+  });
+
   app.use("/api", router);
 
   const httpServer = createServer(app);

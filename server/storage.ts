@@ -1,4 +1,17 @@
 import { randomUUID } from "crypto";
+import { db } from "./db";
+import {
+  registrations,
+  schoolOfSciences,
+  schoolOfSocialSciences,
+  schoolOfBusiness,
+  schoolOfCommerce,
+  schoolOfPsychology,
+  winnersList,
+  type User,
+  type InsertUser,
+} from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 // Server-side in-memory user model for admin flow.
 export type ServerInsertUser = {
@@ -17,7 +30,6 @@ export type ServerUser = {
   status: "pending" | "approved" | "rejected"; // admin approval
 };
 
-// modify the interface with any CRUD methods you might need
 export interface IStorage {
   getUser(id: string): Promise<ServerUser | undefined>;
   getUserByUsername(username: string): Promise<ServerUser | undefined>;
@@ -27,9 +39,19 @@ export interface IStorage {
   getPendingUsers(): Promise<ServerUser[]>;
   approveUser(id: string): Promise<ServerUser | undefined>;
   rejectUser(id: string): Promise<ServerUser | undefined>;
+
+  // New methods for AWS RDS data
+  getRegistrations(): Promise<any[]>;
+  getSchoolOfSciences(): Promise<any[]>;
+  getSchoolOfSocialSciences(): Promise<any[]>;
+  getSchoolOfBusiness(): Promise<any[]>;
+  getSchoolOfCommerce(): Promise<any[]>;
+  getSchoolOfPsychology(): Promise<any[]>;
+  getWinners(): Promise<any[]>;
 }
 
-export class MemStorage implements IStorage {
+export class DatabaseStorage implements IStorage {
+  // Keep users in memory for now as per existing flow/safety
   private users: Map<string, ServerUser>;
 
   constructor() {
@@ -98,6 +120,35 @@ export class MemStorage implements IStorage {
     this.users.set(id, user);
     return user;
   }
+
+  // AWS RDS Data Fetching Methods
+  async getRegistrations(): Promise<any[]> {
+    return await db.select().from(registrations);
+  }
+
+  async getSchoolOfSciences(): Promise<any[]> {
+    return await db.select().from(schoolOfSciences);
+  }
+
+  async getSchoolOfSocialSciences(): Promise<any[]> {
+    return await db.select().from(schoolOfSocialSciences);
+  }
+
+  async getSchoolOfBusiness(): Promise<any[]> {
+    return await db.select().from(schoolOfBusiness);
+  }
+
+  async getSchoolOfCommerce(): Promise<any[]> {
+    return await db.select().from(schoolOfCommerce);
+  }
+
+  async getSchoolOfPsychology(): Promise<any[]> {
+    return await db.select().from(schoolOfPsychology);
+  }
+
+  async getWinners(): Promise<any[]> {
+    return await db.select().from(winnersList);
+  }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
