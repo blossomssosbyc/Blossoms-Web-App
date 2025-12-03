@@ -458,9 +458,9 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 via-black to-pink-900/50" />
 
         {/* Animated Background Orbs */}
-        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full blur-3xl opacity-20 animate-pulse" />
+        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(168,85,247,0.3)_0%,transparent_70%)] animate-pulse pointer-events-none" />
         <div
-          className="absolute bottom-20 right-20 w-96 h-96 bg-pink-500 rounded-full blur-3xl opacity-20 animate-pulse"
+          className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(236,72,153,0.3)_0%,transparent_70%)] animate-pulse pointer-events-none"
           style={{ animationDelay: "1s" }}
         />
 
