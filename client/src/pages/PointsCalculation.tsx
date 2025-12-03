@@ -329,8 +329,17 @@ export default function PointsCalculation() {
         className="relative h-[60vh] flex items-center justify-center overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-black to-blue-900/30" />
-        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full blur-3xl opacity-20 animate-pulse" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-20 animate-pulse" style={{ animationDelay: "1s" }} />
+        <div 
+          className="absolute top-0 left-0 w-[500px] h-[500px] animate-pulse pointer-events-none"
+          style={{ background: "radial-gradient(circle, rgba(168,85,247,0.3) 0%, transparent 70%)" }}
+        />
+        <div 
+          className="absolute bottom-0 right-0 w-[500px] h-[500px] animate-pulse pointer-events-none"
+          style={{ 
+            background: "radial-gradient(circle, rgba(59,130,246,0.3) 0%, transparent 70%)",
+            animationDelay: "1s" 
+          }}
+        />
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 text-center">
           <div className="hero-element mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
