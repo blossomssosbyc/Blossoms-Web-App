@@ -1,6 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { AnimatePresence, motion } from "framer-motion";
+import { X, Calendar, MapPin, Clock, Users, Trophy } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import TimelineItem from "@/components/TimelineItem";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -302,6 +306,7 @@ export default function EventsTimeline() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
+  const [selectedEvent, setSelectedEvent] = useState<typeof events[0] | null>(null);
 
   useEffect(() => {
     const now = new Date();
@@ -418,12 +423,121 @@ export default function EventsTimeline() {
                   status={getStatus(event)}
                   position={event.position as "left" | "right"}
                   highlighted={hoveredIndex === index}
+                  onClick={() => setSelectedEvent(event)}
                 />
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      {/* Starry Modal */}
+      <AnimatePresence>
+        {selectedEvent && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => setSelectedEvent(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-4xl bg-black border border-purple-500/30 rounded-2xl overflow-hidden shadow-2xl shadow-purple-900/20"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Starry Background Effect */}
+              <div className="absolute inset-0 z-0">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-black to-black" />
+                {/* CSS Stars */}
+                {[...Array(50)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute rounded-full bg-white animate-pulse"
+                    style={{
+                      top: `${Math.random() * 100}%`,
+                      left: `${Math.random() * 100}%`,
+                      width: `${Math.random() * 2 + 1}px`,
+                      height: `${Math.random() * 2 + 1}px`,
+                      opacity: Math.random() * 0.7 + 0.3,
+                      animationDelay: `${Math.random() * 2}s`,
+                      animationDuration: `${Math.random() * 3 + 2}s`,
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Content */}
+              <div className="relative z-10 p-8 md:p-12">
+                <button
+                  onClick={() => setSelectedEvent(null)}
+                  className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+
+                <div className="flex flex-col gap-6">
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <Badge variant="outline" className="bg-purple-500/10 text-purple-300 border-purple-500/30 px-3 py-1">
+                        {selectedEvent.date}
+                      </Badge>
+                      <Badge variant="outline" className="bg-blue-500/10 text-blue-300 border-blue-500/30 px-3 py-1">
+                        {selectedEvent.time}
+                      </Badge>
+                    </div>
+                    <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent mb-4">
+                      {selectedEvent.title}
+                    </h2>
+                    <p className="text-xl text-gray-300 leading-relaxed max-w-2xl">
+                      {selectedEvent.description}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
+                      <div className="flex items-center gap-3 mb-2 text-purple-300">
+                        <MapPin className="w-5 h-5" />
+                        <span className="font-semibold">Location</span>
+                      </div>
+                      <p className="text-white text-lg">{selectedEvent.location}</p>
+                    </div>
+                    
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
+                      <div className="flex items-center gap-3 mb-2 text-blue-300">
+                        <Clock className="w-5 h-5" />
+                        <span className="font-semibold">Duration</span>
+                      </div>
+                      <p className="text-white text-lg">90 Minutes</p>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
+                      <div className="flex items-center gap-3 mb-2 text-pink-300">
+                        <Trophy className="w-5 h-5" />
+                        <span className="font-semibold">Type</span>
+                      </div>
+                      <p className="text-white text-lg">Competition</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 pt-8 border-t border-white/10 flex items-center justify-between text-sm text-gray-400">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      <span>Open to all departments</span>
+                    </div>
+                    <div className="italic">
+                      * Schedule subject to change
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Footer Glow */}
       <div className="fixed bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-purple-900/20 to-transparent pointer-events-none z-0" />
