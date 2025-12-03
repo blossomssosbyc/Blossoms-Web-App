@@ -389,6 +389,40 @@ export default function HomePage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const upcomingToday = useMemo(() => getTodaysUpcomingEvents(allEvents), []);
   const heroRef = useRef<HTMLDivElement>(null);
+  
+  // Stats State
+  const [stats, setStats] = useState({
+    participants: 0,
+    events: 0,
+    departments: 5, // Fixed for now
+    days: 2 // Fixed for now
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch("/api/registrations");
+        const data = await res.json();
+        
+        if (Array.isArray(data)) {
+          const totalParticipants = data.reduce((acc: number, curr: any) => acc + (curr.total || 0), 0);
+          const totalEvents = data.length;
+
+          setStats(prev => ({
+            ...prev,
+            participants: totalParticipants,
+            events: totalEvents
+          }));
+        } else {
+          console.error("API returned non-array data:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -536,25 +570,25 @@ export default function HomePage() {
           >
             <StatCard
               icon={Users}
-              value="2,500+"
+              value={stats.participants.toLocaleString()}
               label="Total Participants"
               trend={{ value: 15, isPositive: true }}
             />
             <StatCard
               icon={Calendar}
-              value="35"
+              value={stats.events.toString()}
               label="Events"
               trend={{ value: 8, isPositive: true }}
             />
             <StatCard
               icon={Trophy}
-              value="2"
+              value={stats.departments.toString()}
               label="Departments"
               trend={undefined}
             />
             <StatCard
               icon={Flame}
-              value="10"
+              value={stats.days.toString()}
               label="Days of Events"
               trend={undefined}
             />
