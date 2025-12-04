@@ -15,20 +15,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import MagicBento, { ParticleCard } from "@/components/MagicBento";
 import StatCard from "@/components/StatCard";
 import EventCard from "@/components/EventCard";
-import useSmoothScroll from "@/hooks/useSmoothScroll";
 
 gsap.registerPlugin(ScrollTrigger);
-
-interface ShapeBlurProps {
-  className?: string;
-  variation?: number;
-  pixelRatioProp?: number;
-  shapeSize?: number;
-  roundness?: number;
-  borderSize?: number;
-  circleSize?: number;
-  circleEdge?: number;
-}
 
 interface EventData {
   title: string;
@@ -40,204 +28,287 @@ interface EventData {
   participants: number;
 }
 
-// ShapeBlur Component
-const ShapeBlur = ({
-  className = "",
-  variation = 0,
-  pixelRatioProp = 2,
-  shapeSize = 1.2,
-  roundness = 0.4,
-  borderSize = 0.05,
-  circleSize = 0.3,
-  circleEdge = 0.5,
-}: ShapeBlurProps) => {
-  const mountRef = useRef<HTMLDivElement>(null);
+// ============================================
+// SMOOTH SCROLL HOOK
+// ============================================
 
+const useLenisSmoothScroll = () => {
   useEffect(() => {
-    const mount = mountRef.current;
-    if (!mount) return;
+    let animationId: number;
+    let currentScroll = window.scrollY;
+    let targetScroll = window.scrollY;
+    const ease = 0.08;
 
-    // Dynamically import Three.js
-    const script = document.createElement("script");
-    script.src =
-      "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
-    script.async = true;
-
-    script.onload = () => {
-      const THREE = (window as any).THREE;
-      if (!THREE) return;
-      let animationFrameId;
-      let time = 0,
-        lastTime = 0;
-
-      const vMouse = new THREE.Vector2();
-      const vMouseDamp = new THREE.Vector2();
-      const vResolution = new THREE.Vector2();
-
-      const scene = new THREE.Scene();
-      const camera = new THREE.OrthographicCamera();
-      camera.position.z = 1;
-
-      const renderer = new THREE.WebGLRenderer({ alpha: true });
-      renderer.setClearColor(0x000000, 0);
-      mount.appendChild(renderer.domElement);
-
-      const vertexShader = `
-      varying vec2 v_texcoord;
-      void main() {
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        v_texcoord = uv;
-      }
-    `;
-
-      const fragmentShader = `
-      varying vec2 v_texcoord;
-      uniform vec2 u_mouse;
-      uniform vec2 u_resolution;
-      uniform float u_pixelRatio;
-      uniform float u_shapeSize;
-      uniform float u_roundness;
-      uniform float u_borderSize;
-      uniform float u_circleSize;
-      uniform float u_circleEdge;
+    const smoothScroll = () => {
+      currentScroll += (targetScroll - currentScroll) * ease;
       
-      #define PI 3.1415926535897932384626433832795
-      #define TWO_PI 6.2831853071795864769252867665590
-      #define VAR ${variation}
-      
-      vec2 coord(in vec2 p) {
-        p = p / u_resolution.xy;
-        if (u_resolution.x > u_resolution.y) {
-          p.x *= u_resolution.x / u_resolution.y;
-          p.x += (u_resolution.y - u_resolution.x) / u_resolution.y / 2.0;
-        } else {
-          p.y *= u_resolution.y / u_resolution.x;
-          p.y += (u_resolution.x - u_resolution.y) / u_resolution.x / 2.0;
-        }
-        p -= 0.5;
-        p *= vec2(-1.0, 1.0);
-        return p;
+      if (Math.abs(targetScroll - currentScroll) > 0.5) {
+        window.scrollTo(0, currentScroll);
       }
       
-      float sdRoundRect(vec2 p, vec2 b, float r) {
-        vec2 d = abs(p - 0.5) * 4.2 - b + vec2(r);
-        return min(max(d.x, d.y), 0.0) + length(max(d, 0.0)) - r;
-      }
-      
-      float sdCircle(in vec2 st, in vec2 center) {
-        return length(st - center) * 2.0;
-      }
-      
-      float fill(float x, float size, float edge) {
-        return 1.0 - smoothstep(size - edge, size + edge, x);
-      }
-      
-      float strokeAA(float x, float size, float w, float edge) {
-        float afwidth = length(vec2(dFdx(x), dFdy(x))) * 0.70710678;
-        float d = smoothstep(size - edge - afwidth, size + edge + afwidth, x + w * 0.5)
-                - smoothstep(size - edge - afwidth, size + edge + afwidth, x - w * 0.5);
-        return clamp(d, 0.0, 1.0);
-      }
-      
-      void main() {
-        vec2 st = coord(gl_FragCoord.xy) + 0.5;
-        vec2 posMouse = coord(u_mouse * u_pixelRatio) * vec2(1., -1.) + 0.5;
-        
-        float sdfCircle = fill(sdCircle(st, posMouse), u_circleSize, u_circleEdge);
-        float sdf = sdRoundRect(st, vec2(u_shapeSize), u_roundness);
-        sdf = strokeAA(sdf, 0.0, u_borderSize, sdfCircle) * 4.0;
-        
-        gl_FragColor = vec4(1.0, 1.0, 1.0, sdf);
-      }
-    `;
-
-      const geo = new THREE.PlaneGeometry(1, 1);
-      const material = new THREE.ShaderMaterial({
-        vertexShader,
-        fragmentShader,
-        uniforms: {
-          u_mouse: { value: vMouseDamp },
-          u_resolution: { value: vResolution },
-          u_pixelRatio: { value: pixelRatioProp },
-          u_shapeSize: { value: shapeSize },
-          u_roundness: { value: roundness },
-          u_borderSize: { value: borderSize },
-          u_circleSize: { value: circleSize },
-          u_circleEdge: { value: circleEdge },
-        },
-        transparent: true,
-      });
-
-      const quad = new THREE.Mesh(geo, material);
-      scene.add(quad);
-
-      const onPointerMove = (e: MouseEvent) => {
-        const rect = mount?.getBoundingClientRect();
-        vMouse.set(e.clientX - rect.left, e.clientY - rect.top);
-      };
-
-      document.addEventListener("mousemove", onPointerMove);
-
-      const resize = () => {
-        const w = mount?.clientWidth || 0;
-        const h = mount?.clientHeight || 0;
-        const dpr = Math.min(window.devicePixelRatio, 2);
-
-        renderer.setSize(w, h);
-        renderer.setPixelRatio(dpr);
-
-        camera.left = -w / 2;
-        camera.right = w / 2;
-        camera.top = h / 2;
-        camera.bottom = -h / 2;
-        camera.updateProjectionMatrix();
-
-        quad.scale.set(w, h, 1);
-        vResolution.set(w, h).multiplyScalar(dpr);
-      };
-
-      resize();
-      window.addEventListener("resize", resize);
-
-      const update = () => {
-        time = performance.now() * 0.001;
-        const dt = time - lastTime;
-        lastTime = time;
-
-        vMouseDamp.x = THREE.MathUtils.damp(vMouseDamp.x, vMouse.x, 8, dt);
-        vMouseDamp.y = THREE.MathUtils.damp(vMouseDamp.y, vMouse.y, 8, dt);
-
-        renderer.render(scene, camera);
-        animationFrameId = requestAnimationFrame(update);
-      };
-      update();
+      animationId = requestAnimationFrame(smoothScroll);
     };
 
-    document.head.appendChild(script);
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      targetScroll += e.deltaY;
+      targetScroll = Math.max(0, Math.min(targetScroll, document.body.scrollHeight - window.innerHeight));
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    animationId = requestAnimationFrame(smoothScroll);
 
     return () => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
+      window.removeEventListener("wheel", handleWheel);
+      cancelAnimationFrame(animationId);
     };
-  }, [
-    variation,
-    pixelRatioProp,
-    shapeSize,
-    roundness,
-    borderSize,
-    circleSize,
-    circleEdge,
-  ]);
+  }, []);
+};
+
+// ============================================
+// UNIFIED SEAMLESS BACKGROUND
+// ============================================
+
+const SeamlessBackground = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animationId: number;
+    let time = 0;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = document.documentElement.scrollHeight;
+    };
+    resize();
+
+    const orbs = [
+      { baseX: 0.15, baseY: 0.08, radius: 0.5, color: [120, 0, 180], speed: 0.0002, phase: 0 },
+      { baseX: 0.85, baseY: 0.05, radius: 0.45, color: [180, 0, 100], speed: 0.00025, phase: 1 },
+      { baseX: 0.5, baseY: 0.15, radius: 0.55, color: [80, 0, 160], speed: 0.00015, phase: 2 },
+      { baseX: 0.2, baseY: 0.35, radius: 0.4, color: [150, 20, 120], speed: 0.0003, phase: 3 },
+      { baseX: 0.8, baseY: 0.3, radius: 0.48, color: [100, 0, 200], speed: 0.00018, phase: 4 },
+      { baseX: 0.1, baseY: 0.55, radius: 0.42, color: [170, 30, 90], speed: 0.00022, phase: 5 },
+      { baseX: 0.9, baseY: 0.5, radius: 0.5, color: [90, 10, 170], speed: 0.0002, phase: 6 },
+      { baseX: 0.5, baseY: 0.7, radius: 0.52, color: [130, 0, 150], speed: 0.00016, phase: 7 },
+      { baseX: 0.3, baseY: 0.85, radius: 0.45, color: [160, 40, 110], speed: 0.00024, phase: 8 },
+      { baseX: 0.7, baseY: 0.9, radius: 0.48, color: [110, 20, 180], speed: 0.0002, phase: 9 },
+    ];
+
+    const animate = () => {
+      time += 1;
+      
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      orbs.forEach((orb) => {
+        const offsetX = Math.sin(time * orb.speed + orb.phase) * 0.08;
+        const offsetY = Math.cos(time * orb.speed * 0.7 + orb.phase * 1.5) * 0.06;
+        
+        const mouseInfluenceX = (mouseRef.current.x / canvas.width - 0.5) * 0.02;
+        const mouseInfluenceY = (mouseRef.current.y / window.innerHeight - 0.5) * 0.02;
+
+        const x = (orb.baseX + offsetX + mouseInfluenceX) * canvas.width;
+        const y = (orb.baseY + offsetY + mouseInfluenceY) * canvas.height;
+        const radius = orb.radius * Math.max(canvas.width, canvas.height) * 0.5;
+
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+        gradient.addColorStop(0, `rgba(${orb.color[0]}, ${orb.color[1]}, ${orb.color[2]}, 0.18)`);
+        gradient.addColorStop(0.4, `rgba(${orb.color[0]}, ${orb.color[1]}, ${orb.color[2]}, 0.08)`);
+        gradient.addColorStop(0.7, `rgba(${orb.color[0]}, ${orb.color[1]}, ${orb.color[2]}, 0.03)`);
+        gradient.addColorStop(1, "transparent");
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      });
+
+      // Subtle stars
+      for (let i = 0; i < 100; i++) {
+        const pseudoRandom = (seed: number) => {
+          const x = Math.sin(seed * 12.9898 + i * 78.233) * 43758.5453;
+          return x - Math.floor(x);
+        };
+        
+        const starX = pseudoRandom(i * 1.1) * canvas.width;
+        const starY = pseudoRandom(i * 2.2) * canvas.height;
+        const starSize = pseudoRandom(i * 3.3) * 1.5 + 0.5;
+        const twinkle = Math.sin(time * 0.02 + i) * 0.3 + 0.7;
+        
+        ctx.beginPath();
+        ctx.arc(starX, starY, starSize, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.3 * twinkle})`;
+        ctx.fill();
+      }
+
+      animationId = requestAnimationFrame(animate);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseRef.current = { x: e.clientX, y: e.clientY };
+    };
+
+    const handleScroll = () => {
+      resize();
+    };
+
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(document.body);
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", resize);
+    
+    animate();
+
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", resize);
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   return (
-    <div
-      className={className}
-      ref={mountRef}
-      style={{ width: "100%", height: "100%" }}
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none"
+      style={{ zIndex: 0 }}
     />
   );
 };
+
+// Mouse Glow Effect
+const MouseGlow = () => {
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const handleMove = (e: MouseEvent) => {
+      setPos({ x: e.clientX, y: e.clientY });
+      setVisible(true);
+    };
+    const handleLeave = () => setVisible(false);
+
+    window.addEventListener("mousemove", handleMove);
+    document.body.addEventListener("mouseleave", handleLeave);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      document.body.removeEventListener("mouseleave", handleLeave);
+    };
+  }, []);
+
+  return (
+    <div
+      className="fixed pointer-events-none transition-opacity duration-300"
+      style={{
+        zIndex: 1,
+        opacity: visible ? 1 : 0,
+        background: `radial-gradient(800px circle at ${pos.x}px ${pos.y}px, 
+          rgba(120, 0, 200, 0.04), 
+          transparent 40%)`,
+        inset: 0,
+      }}
+    />
+  );
+};
+
+// Floating Particles
+const FloatingParticles = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    interface Particle {
+      x: number;
+      y: number;
+      size: number;
+      speedX: number;
+      speedY: number;
+      opacity: number;
+      hue: number;
+    }
+
+    const particles: Particle[] = [];
+
+    for (let i = 0; i < 40; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 2 + 0.5,
+        speedX: (Math.random() - 0.5) * 0.2,
+        speedY: (Math.random() - 0.5) * 0.2,
+        opacity: Math.random() * 0.4 + 0.1,
+        hue: Math.random() * 60 + 270,
+      });
+    }
+
+    let animationId: number;
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach((particle) => {
+        particle.x += particle.speedX;
+        particle.y += particle.speedY;
+
+        if (particle.x < 0) particle.x = canvas.width;
+        if (particle.x > canvas.width) particle.x = 0;
+        if (particle.y < 0) particle.y = canvas.height;
+        if (particle.y > canvas.height) particle.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${particle.hue}, 80%, 70%, ${particle.opacity})`;
+        ctx.fill();
+      });
+
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none"
+      style={{ zIndex: 2, opacity: 0.6 }}
+    />
+  );
+};
+
+// ============================================
+// SCROLL REVEAL COMPONENT
+// ============================================
 
 interface ScrollRevealProps {
   children: string;
@@ -247,7 +318,6 @@ interface ScrollRevealProps {
   blurStrength?: number;
 }
 
-// ScrollReveal Component
 const ScrollReveal = ({
   children,
   enableBlur = true,
@@ -256,6 +326,7 @@ const ScrollReveal = ({
   blurStrength = 4,
 }: ScrollRevealProps) => {
   const containerRef = useRef<HTMLHeadingElement>(null);
+  
   const splitText = useMemo(() => {
     const text = typeof children === "string" ? children : "";
     return text.split(/(\s+)/).map((word, index) => {
@@ -322,8 +393,11 @@ const ScrollReveal = ({
   );
 };
 
-// All events data
-const allEvents = [
+// ============================================
+// EVENT DATA
+// ============================================
+
+const allEvents: EventData[] = [
   {
     title: "Greeting Card Making",
     description: "Art event for creative greeting card design.",
@@ -376,45 +450,51 @@ function getTodaysUpcomingEvents(events: EventData[]): EventData[] {
   const now = new Date();
   return events
     .filter(
-      (evt: EventData) =>
+      (evt) =>
         isToday(evt.date) && new Date(`${evt.date} ${evt.time} GMT+0530`) > now
     )
-    .sort((a: EventData, b: EventData) =>
+    .sort((a, b) =>
       new Date(`${a.date} ${a.time}`) > new Date(`${b.date} ${b.time}`) ? 1 : -1
     );
 }
 
-// Main Homepage Component
+// ============================================
+// MAIN HOMEPAGE COMPONENT
+// ============================================
+
 export default function HomePage() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const upcomingToday = useMemo(() => getTodaysUpcomingEvents(allEvents), []);
   const heroRef = useRef<HTMLDivElement>(null);
-  
-  // Stats State
+  const titleRef = useRef<HTMLHeadingElement>(null);
+
   const [stats, setStats] = useState({
     participants: 0,
     events: 0,
-    departments: 5, // Fixed for now
-    days: 2 // Fixed for now
+    schools: 5,
+    days: 10,
   });
+
+  // Enable smooth scrolling
+  useLenisSmoothScroll();
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const res = await fetch("/api/registrations");
         const data = await res.json();
-        
+
         if (Array.isArray(data)) {
-          const totalParticipants = data.reduce((acc: number, curr: any) => acc + (curr.total || 0), 0);
+          const totalParticipants = data.reduce(
+            (acc: number, curr: any) => acc + (curr.total || 0),
+            0
+          );
           const totalEvents = data.length;
 
-          setStats(prev => ({
+          setStats((prev) => ({
             ...prev,
             participants: totalParticipants,
-            events: totalEvents
+            events: totalEvents,
           }));
-        } else {
-          console.error("API returned non-array data:", data);
         }
       } catch (error) {
         console.error("Error fetching stats:", error);
@@ -424,90 +504,131 @@ export default function HomePage() {
     fetchStats();
   }, []);
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  // Enable smooth, damped scrolling for premium feel
-  useSmoothScroll();
-
-  // Hero animation
+  // Hero animations
   useEffect(() => {
     const hero = heroRef.current;
+    const title = titleRef.current;
     if (!hero) return;
 
     gsap.fromTo(
-      hero?.querySelectorAll(".hero-element"),
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 1, stagger: 0.2, ease: "power3.out" }
+      hero.querySelectorAll(".hero-element"),
+      { opacity: 0, y: 50, scale: 0.9 },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 1.2,
+        stagger: 0.15,
+        ease: "power3.out",
+        clearProps: "all",
+      }
     );
+
+    if (title) {
+      gsap.to(title, {
+        y: -15,
+        duration: 3,
+        ease: "sine.inOut",
+        repeat: -1,
+        yoyo: true,
+      });
+    }
+
+    gsap.to(hero.querySelector(".hero-content"), {
+      y: 150,
+      opacity: 0,
+      ease: "none",
+      scrollTrigger: {
+        trigger: hero,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1,
+      },
+    });
   }, []);
 
-  // Scroll reveal animations for all sections
+  // Scroll reveal animations
   useEffect(() => {
     const revealElements = document.querySelectorAll("[data-reveal]");
 
     revealElements.forEach((element) => {
       gsap.fromTo(
         element,
-        {
-          opacity: 0,
-          y: 50,
-          scale: 0.95,
-        },
+        { opacity: 0, y: 60, scale: 0.95 },
         {
           opacity: 1,
           y: 0,
           scale: 1,
-          duration: 0.8,
-          ease: "power2.out",
+          duration: 1,
+          ease: "power3.out",
           scrollTrigger: {
             trigger: element,
-            start: "top 80%",
-            end: "top 20%",
-            scrub: 0.5,
-            markers: false,
+            start: "top 85%",
+            end: "top 50%",
+            scrub: 1,
           },
         }
       );
     });
 
-    return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-    };
+    return () => ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+  }, []);
+
+  // Magnetic buttons effect
+  useEffect(() => {
+    const buttons = document.querySelectorAll(".magnetic-btn");
+
+    buttons.forEach((button) => {
+      const btn = button as HTMLElement;
+
+      const handleEnter = () => {
+        gsap.to(btn, { scale: 1.05, duration: 0.3, ease: "power2.out" });
+      };
+
+      const handleLeave = () => {
+        gsap.to(btn, { scale: 1, x: 0, y: 0, duration: 0.3, ease: "power2.out" });
+      };
+
+      const handleMove = (e: MouseEvent) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        gsap.to(btn, { x: x * 0.3, y: y * 0.3, duration: 0.3, ease: "power2.out" });
+      };
+
+      btn.addEventListener("mouseenter", handleEnter);
+      btn.addEventListener("mouseleave", handleLeave);
+      btn.addEventListener("mousemove", handleMove);
+    });
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-hidden">
-      {/* Hero Section with ShapeBlur */}
+    <div className="min-h-screen bg-black text-white overflow-x-hidden relative">
+      {/* Background */}
+      <SeamlessBackground />
+      <MouseGlow />
+      <FloatingParticles />
+
+      {/* Hero Section */}
       <section
         ref={heroRef}
-        className="relative h-screen flex items-center justify-center overflow-hidden"
+        className="relative min-h-screen flex items-center justify-center"
+        style={{ zIndex: 10 }}
       >
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 via-black to-pink-900/50" />
-
-        {/* Animated Background Orbs */}
-        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(168,85,247,0.3)_0%,transparent_70%)] animate-pulse pointer-events-none" />
-        <div
-          className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(236,72,153,0.3)_0%,transparent_70%)] animate-pulse pointer-events-none"
-          style={{ animationDelay: "1s" }}
-        />
-
-        {/* Hero Content */}
-        <div className="relative z-10 max-w-6xl mx-auto px-4 text-center">
-          <div className="hero-element mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
-            <Sparkles className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm font-medium">
-              Inter-School Festival
-            </span>
+        <div className="hero-content relative z-10 max-w-6xl mx-auto px-4 text-center">
+          <div className="hero-element mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300">
+            <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
+            <span className="text-sm font-medium">Inter-School Festival</span>
           </div>
 
-          <h1 className="hero-element text-7xl md:text-8xl lg:text-9xl font-black mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent leading-tight">
+          <h1
+            ref={titleRef}
+            className="hero-element text-7xl md:text-8xl lg:text-9xl font-black mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent leading-tight"
+            style={{
+              backgroundSize: "200% auto",
+              animation: "gradient 8s ease infinite",
+            }}
+          >
             Blossoms
           </h1>
 
@@ -516,7 +637,7 @@ export default function HomePage() {
           </div>
 
           <p className="hero-element text-xl md:text-2xl mb-3 text-white/70">
-            CHRIST (Deemed to be University), Yeshwanthpur campus  
+            CHRIST (Deemed to be University), Yeshwanthpur campus
           </p>
 
           <p className="hero-element text-lg md:text-xl mb-12 text-white/60">
@@ -525,7 +646,7 @@ export default function HomePage() {
 
           <div className="hero-element flex flex-wrap items-center justify-center gap-6">
             <Link href="/timeline">
-              <button className="group relative px-8 py-4 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 font-semibold text-lg overflow-hidden transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:shadow-purple-500/50">
+              <button className="magnetic-btn group relative px-8 py-4 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 font-semibold text-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/50">
                 <span className="relative z-10 flex items-center gap-2">
                   View Events
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -535,7 +656,7 @@ export default function HomePage() {
             </Link>
 
             <Link href="/report">
-              <button className="group px-8 py-4 rounded-full backdrop-blur-md bg-white/10 border-2 border-white/20 font-semibold text-lg hover:bg-white/20 transition-all duration-300 hover:scale-110">
+              <button className="magnetic-btn group px-8 py-4 rounded-full backdrop-blur-md bg-white/5 border border-white/20 font-semibold text-lg hover:bg-white/10 transition-all duration-300">
                 <span className="flex items-center gap-2">
                   <FileText className="w-5 h-5" />
                   Generate Report
@@ -547,15 +668,14 @@ export default function HomePage() {
 
         {/* Scroll Indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-2">
-            <div className="w-1 h-3 bg-white/50 rounded-full" />
+          <div className="w-6 h-10 rounded-full border-2 border-white/20 flex items-start justify-center p-2">
+            <div className="w-1 h-3 bg-white/40 rounded-full animate-pulse" />
           </div>
         </div>
       </section>
 
-      {/* Stats Section with MagicBento */}
-      <section className="py-24 px-4 relative overflow-hidden" data-reveal>
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
+      {/* Stats Section */}
+      <section className="py-24 px-4 relative" data-reveal style={{ zIndex: 10 }}>
         <div className="relative z-10 max-w-7xl mx-auto">
           <MagicBento
             enableStars={true}
@@ -582,8 +702,8 @@ export default function HomePage() {
             />
             <StatCard
               icon={Trophy}
-              value={stats.departments.toString()}
-              label="Departments"
+              value={stats.schools.toString()}
+              label="Schools"
               trend={undefined}
             />
             <StatCard
@@ -596,31 +716,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ScrollReveal Section */}
-      <section className="py-32 px-4 relative overflow-hidden" data-reveal>
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-pink-900/10 to-black" />
+      {/* ScrollReveal Section 1 */}
+      <section className="py-32 px-4 relative" data-reveal style={{ zIndex: 10 }}>
         <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <ScrollReveal
-            enableBlur={true}
-            baseOpacity={0.2}
-            baseRotation={2}
-            blurStrength={8}
-          >
+          <ScrollReveal enableBlur={true} baseOpacity={0.2} baseRotation={2} blurStrength={8}>
             A celebration of creativity, talent, and unity. Join us for an
             unforgettable journey through art, music, dance, and culture.
           </ScrollReveal>
         </div>
       </section>
 
-      <section className="py-32 px-4 relative overflow-hidden" data-reveal>
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-pink-900/10 to-black" />
+      {/* ScrollReveal Section 2 */}
+      <section className="py-32 px-4 relative" data-reveal style={{ zIndex: 10 }}>
         <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <ScrollReveal
-            enableBlur={true}
-            baseOpacity={0.2}
-            baseRotation={2}
-            blurStrength={8}
-          >
+          <ScrollReveal enableBlur={true} baseOpacity={0.2} baseRotation={2} blurStrength={8}>
             Experience the magic of Blossoms 2025-26, where every moment
             sparkles with joy and excitement. Let the festivities begin!
           </ScrollReveal>
@@ -628,12 +737,14 @@ export default function HomePage() {
       </section>
 
       {/* Upcoming Events */}
-      <section className="py-24 px-4 relative" data-reveal>
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-blue-900/10 to-black" />
+      <section className="py-24 px-4 relative" data-reveal style={{ zIndex: 10 }}>
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="flex items-center gap-4 mb-12" data-reveal>
-            <Star className="w-8 h-8 text-yellow-400" />
-            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <Star className="w-8 h-8 text-yellow-400 animate-pulse" />
+            <h2
+              className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
+              style={{ backgroundSize: "200% auto" }}
+            >
               Upcoming Highlights
             </h2>
           </div>
@@ -663,10 +774,7 @@ export default function HomePage() {
                       border: "none",
                     }}
                   >
-                    <EventCard
-                      {...event}
-                      date={`${event.date}, ${event.time}`}
-                    />
+                    <EventCard {...event} date={`${event.date}, ${event.time}`} />
                   </ParticleCard>
                 </div>
               ))
@@ -679,15 +787,14 @@ export default function HomePage() {
                     clickEffect={false}
                     enableMagnetism={false}
                     style={{
-                      background: "linear-gradient(180deg,#0b0713,#0b0b0b)",
+                      background: "rgba(10, 5, 20, 0.6)",
                       border: "1px solid rgba(255,255,255,0.06)",
+                      backdropFilter: "blur(10px)",
                     }}
                   >
                     <div>
                       <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                      <p className="text-xl text-gray-400">
-                        No upcoming events today
-                      </p>
+                      <p className="text-xl text-gray-400">No upcoming events today</p>
                       <p className="text-sm text-gray-500 mt-2">
                         Check back tomorrow for more exciting events!
                       </p>
@@ -700,13 +807,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Quick Access */}
-      <section className="py-24 px-4 relative" data-reveal>
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
+      {/* Quick Access - Original Card Animation Style */}
+      <section className="py-24 px-4 relative" data-reveal style={{ zIndex: 10 }}>
         <div className="relative z-10 max-w-7xl mx-auto">
           <h2
             className="text-4xl md:text-5xl font-bold text-center mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
             data-reveal
+            style={{ backgroundSize: "200% auto" }}
           >
             Quick Access
           </h2>
@@ -761,7 +868,7 @@ export default function HomePage() {
                 <div key={item.label} data-reveal>
                   <Link href={item.link}>
                     <ParticleCard
-                      className="card relative overflow-hidden rounded-2xl p-6 border border-solid font-light transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)] card--border-glow"
+                      className="card relative overflow-hidden rounded-2xl p-6 border border-solid font-light transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(120,0,255,0.3)] card--border-glow group cursor-pointer"
                       style={cardStyle}
                       enableTilt={true}
                       clickEffect={true}
@@ -776,7 +883,7 @@ export default function HomePage() {
                             {item.label}
                           </h3>
                           <p className="text-sm text-gray-400">{item.desc}</p>
-                          <ArrowRight className="w-6 h-6 mt-4 text-gray-400 group-hover:text-white group-hover:translate-x-2 transition-all" />
+                          <ArrowRight className="w-6 h-6 mt-4 text-gray-400 group-hover:text-white group-hover:translate-x-2 transition-all duration-300" />
                         </div>
                       </button>
                     </ParticleCard>
@@ -788,8 +895,89 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer Glow */}
-      <div className="h-32 bg-gradient-to-t from-purple-900/20 to-transparent" />
+      {/* Footer Spacer */}
+      <div className="h-32 relative" style={{ zIndex: 10 }} />
+
+      {/* Global Styles */}
+      <style>{`
+        @keyframes gradient {
+          0%, 100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+        }
+
+        /* Smooth scrollbar */
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: linear-gradient(180deg, #7c3aed, #ec4899);
+          border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(180deg, #8b5cf6, #f472b6);
+        }
+
+        /* Card glow effect */
+        .card--border-glow {
+          position: relative;
+        }
+
+        .card--border-glow::before {
+          content: '';
+          position: absolute;
+          inset: -2px;
+          background: linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(236, 72, 153, 0.4), rgba(59, 130, 246, 0.4));
+          border-radius: inherit;
+          opacity: 0;
+          transition: opacity 0.5s ease;
+          z-index: -1;
+          filter: blur(8px);
+        }
+
+        .card--border-glow:hover::before {
+          opacity: 1;
+        }
+
+        /* Enhanced hover lift */
+        .card:hover {
+          transform: translateY(-8px) scale(1.02);
+          box-shadow: 
+            0 25px 50px -12px rgba(120, 0, 255, 0.25),
+            0 0 30px rgba(168, 85, 247, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Magnetic button glow */
+        .magnetic-btn {
+          position: relative;
+        }
+
+        .magnetic-btn::after {
+          content: '';
+          position: absolute;
+          inset: -4px;
+          background: inherit;
+          border-radius: inherit;
+          filter: blur(15px);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          z-index: -1;
+        }
+
+        .magnetic-btn:hover::after {
+          opacity: 0.6;
+        }
+      `}</style>
     </div>
   );
 }
