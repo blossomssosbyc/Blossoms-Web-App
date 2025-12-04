@@ -8,6 +8,7 @@ import {
   schoolOfCommerce,
   schoolOfPsychology,
   winnersList,
+  pointsTable, // ADD THIS IMPORT
   type User,
   type InsertUser,
 } from "@shared/schema";
@@ -26,8 +27,8 @@ export type ServerUser = {
   password: string;
   email: string;
   otp?: string;
-  verified: boolean; // whether the user completed OTP verification
-  status: "pending" | "approved" | "rejected"; // admin approval
+  verified: boolean;
+  status: "pending" | "approved" | "rejected";
 };
 
 export interface IStorage {
@@ -40,7 +41,7 @@ export interface IStorage {
   approveUser(id: string): Promise<ServerUser | undefined>;
   rejectUser(id: string): Promise<ServerUser | undefined>;
 
-  // New methods for AWS RDS data
+  // AWS RDS data methods
   getRegistrations(): Promise<any[]>;
   getSchoolOfSciences(): Promise<any[]>;
   getSchoolOfSocialSciences(): Promise<any[]>;
@@ -48,10 +49,10 @@ export interface IStorage {
   getSchoolOfCommerce(): Promise<any[]>;
   getSchoolOfPsychology(): Promise<any[]>;
   getWinners(): Promise<any[]>;
+  getPoints(): Promise<any[]>; // ADD THIS LINE
 }
 
 export class DatabaseStorage implements IStorage {
-  // Keep users in memory for now as per existing flow/safety
   private users: Map<string, ServerUser>;
 
   constructor() {
@@ -95,7 +96,7 @@ export class DatabaseStorage implements IStorage {
     const ok = user.otp === otp;
     if (ok) {
       user.verified = true;
-      user.otp = undefined; // clear
+      user.otp = undefined;
       this.users.set(id, user);
     }
     return ok;
@@ -148,6 +149,11 @@ export class DatabaseStorage implements IStorage {
 
   async getWinners(): Promise<any[]> {
     return await db.select().from(winnersList);
+  }
+
+  // NEW: Points Table Method
+  async getPoints(): Promise<any[]> {
+    return await db.select().from(pointsTable);
   }
 }
 

@@ -5,8 +5,6 @@ import { storage } from "./storage";
 import nodemailer from "nodemailer";
 
 function createMailer() {
-  // SMTP configuration should be provided via environment variables.
-  // e.g. SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
   const host = process.env.SMTP_HOST;
   if (!host) return null;
 
@@ -84,8 +82,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   router.get("/admin/pending", async (_req: Request, res: Response) => {
     try {
       const pending = await storage.getPendingUsers();
-      // strip sensitive fields
-      const data = pending.map((u) => ({ id: u.id, username: u.username, email: u.email, verified: u.verified }));
+      const data = pending.map((u) => ({
+        id: u.id,
+        username: u.username,
+        email: u.email,
+        verified: u.verified,
+      }));
       return res.json(data);
     } catch (err: any) {
       console.error(err);
@@ -100,7 +102,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.approveUser(id);
       if (!user) return res.status(404).json({ message: "Not found" });
 
-      // send notification email to blossoms.sos.byc@gmail.com
       const notifyTo = "blossoms.sos.byc@gmail.com";
       const subject = `User approved: ${user.username}`;
       const text = `User ${user.username} <${user.email}> has been approved and can now access the data.`;
@@ -130,7 +131,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.rejectUser(id);
       if (!user) return res.status(404).json({ message: "Not found" });
 
-      // notify user about rejection (optional)
       if (transporter) {
         await transporter.sendMail({
           from: process.env.SMTP_FROM || process.env.SMTP_USER,
@@ -147,7 +147,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============================================
   // AWS RDS Data Endpoints
+  // ============================================
+
+  // Points Table - NEW ENDPOINT
+  router.get("/points", async (_req: Request, res: Response) => {
+    try {
+      const data = await storage.getPoints();
+      res.json(data);
+    } catch (err: any) {
+      console.error(err);
+      res.status(500).json({ message: err.message || "Error fetching points data" });
+    }
+  });
+
   router.get("/registrations", async (_req: Request, res: Response) => {
     try {
       const data = await storage.getRegistrations();

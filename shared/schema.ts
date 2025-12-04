@@ -87,6 +87,29 @@ export const winnersList = mysqlTable("WINNERS_LIST", {
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
 });
 
+/**
+ * NEW: POINTS_TABLE schema
+ * Columns:
+ *  id (int AI PK)
+ *  event (varchar(255))
+ *  school_of_sciences (int)
+ *  school_of_psychological_sciences (int)
+ *  school_of_social_sciences (int)
+ *  school_of_business_and_management (int)
+ *  school_of_commerce (int)
+ *  created_at (timestamp)
+ */
+export const pointsTable = mysqlTable("POINTS_TABLE", {
+  id: serial("id").primaryKey(),
+  event: varchar("event", { length: 255 }).notNull().unique(),
+  school_of_sciences: int("school_of_sciences").notNull().default(0),
+  school_of_psychological_sciences: int("school_of_psychological_sciences").notNull().default(0),
+  school_of_social_sciences: int("school_of_social_sciences").notNull().default(0),
+  school_of_business_and_management: int("school_of_business_and_management").notNull().default(0),
+  school_of_commerce: int("school_of_commerce").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -95,3 +118,6 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
+// Types for points table
+export type PointsData = typeof pointsTable.$inferSelect;
+export type InsertPointsData = typeof pointsTable.$inferInsert;

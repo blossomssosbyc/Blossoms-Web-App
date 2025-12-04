@@ -3,16 +3,14 @@ import {
   Trophy,
   TrendingUp,
   Award,
-  Star,
   Users,
   Sparkles,
   BarChart2,
   PieChart as PieChartIcon,
   Activity,
   Search,
-  ArrowRight,
-  Filter,
-  LineChart as LineChartIcon
+  Crown,
+  Medal,
 } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -28,13 +26,13 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
   PolarRadiusAxis,
-  Radar
+  Radar,
+  LineChart,
+  Line,
 } from "recharts";
 import MagicBento, { ParticleCard } from "@/components/MagicBento";
 import useSmoothScroll from "@/hooks/useSmoothScroll";
@@ -42,7 +40,30 @@ import AIQuery from "@/components/AIQuery";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Card Component with neon theme
+// ---------- Types ----------
+
+type PointsRow = {
+  id: number;
+  event: string;
+  school_of_sciences: number;
+  school_of_psychological_sciences: number;
+  school_of_social_sciences: number;
+  school_of_business_and_management: number;
+  school_of_commerce: number;
+  createdAt?: string;
+};
+
+type SchoolRanking = {
+  name: string;
+  shortName: string;
+  key: keyof PointsRow;
+  totalPoints: number;
+  totalEvents: number;
+  rank: number;
+};
+
+// ---------- Small UI pieces ----------
+
 function Card({
   children,
   className = "",
@@ -52,49 +73,61 @@ function Card({
 }) {
   return (
     <div
-      className={`relative rounded-2xl border border-solid border-[rgba(57,46,78,0.6)] bg-gradient-to-br from-[#0b0713] to-[#000000] p-6 card--border-glow transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 ${className}`}
+      className={`relative rounded-2xl border border-solid border-[rgba(57,46,78,0.6)] bg-black/40 backdrop-blur-md p-6 card--border-glow transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25 ${className}`}
     >
-      {/* Border glow effect */}
-      <div
-        className="absolute inset-0 rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(600px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(132, 0, 255, 0.15), transparent 80%)",
-        }}
-      />
       <div className="relative z-10">{children}</div>
     </div>
   );
 }
 
-// Stat Card Component with neon glow
-function StatCard({ icon: Icon, value, label, trend }: any) {
+function StatCard({
+  icon: Icon,
+  value,
+  label,
+  emphasis = false,
+}: {
+  icon: any;
+  value: React.ReactNode;
+  label: string;
+  emphasis?: boolean;
+}) {
   return (
     <ParticleCard
-      className="relative overflow-hidden rounded-2xl p-6 border border-solid border-[rgba(57,46,78,0.6)] bg-gradient-to-br from-[#0b0713] to-[#000000] card--border-glow transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/30"
-      enableTilt={true}
-      clickEffect={false}
-      enableMagnetism={true}
+      className={`relative overflow-hidden rounded-2xl p-5 border ${
+        emphasis
+          ? "border-purple-400/70 bg-gradient-to-br from-purple-900/50 to-slate-950/80"
+          : "border-white/10 bg-black/55"
+      } transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/35`}
+      enableTilt
+      enableMagnetism
     >
-      <div className="flex items-start justify-between relative z-10">
-        <div className="space-y-2">
-          <p className="text-sm text-white/60 font-medium uppercase tracking-wide">
+      <div className="flex items-center gap-4">
+        <div
+          className={`rounded-xl p-3 ${
+            emphasis
+              ? "bg-gradient-to-br from-yellow-400/30 to-orange-500/25 border border-yellow-400/40"
+              : "bg-gradient-to-br from-purple-500/20 to-pink-500/15 border border-purple-500/30"
+          }`}
+        >
+          <Icon
+            className={`w-7 h-7 ${
+              emphasis ? "text-yellow-200" : "text-purple-200"
+            }`}
+          />
+        </div>
+        <div className="flex-1">
+          <p className="text-[11px] font-semibold tracking-[0.18em] text-white/60 uppercase">
             {label}
           </p>
-          <p className="text-4xl font-black text-white">{value}</p>
-          {trend && (
-            <p
-              className={`text-sm flex items-center gap-1 font-semibold ${
-                trend.isPositive ? "text-emerald-400" : "text-red-400"
-              }`}
-            >
-              <span>{trend.isPositive ? "↑" : "↓"}</span>
-              <span>{Math.abs(trend.value)}%</span>
-            </p>
-          )}
-        </div>
-        <div className="p-4 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/30 backdrop-blur-sm">
-          <Icon className="w-7 h-7 text-purple-400" />
+          <p
+            className={`mt-1 ${
+              emphasis
+                ? "text-2xl md:text-3xl font-black bg-gradient-to-r from-yellow-200 via-orange-200 to-pink-200 bg-clip-text text-transparent"
+                : "text-2xl font-bold text-white"
+            }`}
+          >
+            {value}
+          </p>
         </div>
       </div>
     </ParticleCard>
@@ -104,7 +137,7 @@ function StatCard({ icon: Icon, value, label, trend }: any) {
 function SchoolSelector({
   selected,
   onChange,
-  schools
+  schools,
 }: {
   selected: string;
   onChange: (school: string) => void;
@@ -116,266 +149,295 @@ function SchoolSelector({
         <button
           key={school}
           onClick={() => onChange(school)}
-          className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
+          className={`px-5 py-2.5 rounded-xl text-sm md:text-base font-semibold transition-all duration-200 ${
             selected === school
-              ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/50 border-2 border-purple-400 scale-105"
-              : "bg-transparent border-2 border-white/20 text-white/70 hover:border-purple-500/50 hover:text-white hover:bg-white/5 hover:shadow-lg hover:shadow-purple-500/20"
+              ? "bg-white text-slate-950 shadow-lg shadow-purple-500/40"
+              : "bg-white/8 text-white/75 border border-white/10 hover:bg-white/12 hover:text-white"
           }`}
         >
-          {school}
+          {school.replace("School of ", "")}
         </button>
       ))}
     </div>
   );
 }
 
+// ---------- Constants ----------
+
 const SCHOOL_NAMES = [
   "School of Sciences",
+  "School of Psychological Sciences",
   "School of Social Sciences",
-  "School of Business",
+  "School of Business and Management",
   "School of Commerce",
-  "School of Psychology"
 ];
+
+const SCHOOL_KEY_MAP: Record<string, keyof PointsRow> = {
+  "School of Sciences": "school_of_sciences",
+  "School of Psychological Sciences": "school_of_psychological_sciences",
+  "School of Social Sciences": "school_of_social_sciences",
+  "School of Business and Management": "school_of_business_and_management",
+  "School of Commerce": "school_of_commerce",
+};
 
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#0088FE"];
 
+// ---------- Main ----------
+
 export default function PointsCalculation() {
-  const [activeTab, setActiveTab] = useState<"school-wise" | "comparison" | "graphs" | "winners" | "ai-query">("school-wise");
-  const [selectedSchool, setSelectedSchool] = useState<string>(SCHOOL_NAMES[0]);
-  const [registrations, setRegistrations] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<
+    "points" | "school-wise" | "comparison" | "graphs" | "winners" | "ai-query"
+  >("points");
+
+  const [points, setPoints] = useState<PointsRow[]>([]);
   const [schoolData, setSchoolData] = useState<any>({});
   const [winners, setWinners] = useState<any[]>([]);
+  const [registrations, setRegistrations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Search states
+
+  // search
+  const [pointsEventSearch, setPointsEventSearch] = useState("");
   const [schoolSearch, setSchoolSearch] = useState("");
   const [winnerSearch, setWinnerSearch] = useState("");
+  const [eventSearch, setEventSearch] = useState("");
+
+  const [selectedSchool, setSelectedSchool] = useState<string>(
+    "School of Psychological Sciences"
+  );
 
   const heroRef = useRef<HTMLDivElement>(null);
-
   useSmoothScroll();
 
+  // fetch everything including POINTS_TABLE
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [
+          pointsRows,
           regs,
           sciences,
           social,
           business,
           commerce,
           psych,
-          winList
+          winList,
         ] = await Promise.all([
-          fetch("/api/registrations").then(res => res.json()),
-          fetch("/api/school-of-sciences").then(res => res.json()),
-          fetch("/api/school-of-social-sciences").then(res => res.json()),
-          fetch("/api/school-of-business").then(res => res.json()),
-          fetch("/api/school-of-commerce").then(res => res.json()),
-          fetch("/api/school-of-psychology").then(res => res.json()),
-          fetch("/api/winners").then(res => res.json())
+          fetch("/api/points").then((r) => r.json()),
+          fetch("/api/registrations").then((r) => r.json()),
+          fetch("/api/school-of-sciences").then((r) => r.json()),
+          fetch("/api/school-of-social-sciences").then((r) => r.json()),
+          fetch("/api/school-of-business").then((r) => r.json()),
+          fetch("/api/school-of-commerce").then((r) => r.json()),
+          fetch("/api/school-of-psychology").then((r) => r.json()),
+          fetch("/api/winners").then((r) => r.json()),
         ]);
-
+        setPoints(pointsRows);
         setRegistrations(regs);
         setSchoolData({
           "School of Sciences": sciences,
           "School of Social Sciences": social,
-          "School of Business": business,
+          "School of Business and Management": business,
           "School of Commerce": commerce,
-          "School of Psychology": psych
+          "School of Psychological Sciences": psych,
         });
         setWinners(winList);
         setLoading(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
+      } catch (e) {
+        console.error("Error loading data", e);
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
   useEffect(() => {
     if (!heroRef?.current) return;
-
     gsap.fromTo(
       heroRef.current?.querySelectorAll(".hero-element"),
       { opacity: 0, y: 30 },
       { opacity: 1, y: 0, duration: 1, stagger: 0.2, ease: "power3.out" }
     );
-  }, [heroRef]);
+  }, []);
 
-  // Scroll reveal animations
   useEffect(() => {
-    const revealElements = document.querySelectorAll("[data-reveal]");
-    revealElements.forEach((element) => {
+    const els = document.querySelectorAll("[data-reveal]");
+    els.forEach((el) => {
       gsap.fromTo(
-        element,
-        { opacity: 0, y: 50, scale: 0.95 },
+        el,
+        { opacity: 0, y: 50, scale: 0.96 },
         {
           opacity: 1,
           y: 0,
           scale: 1,
-          duration: 0.8,
+          duration: 0.7,
           ease: "power2.out",
           scrollTrigger: {
-            trigger: element,
+            trigger: el,
             start: "top 80%",
-            end: "top 20%",
-            scrub: 0.5,
-            markers: false,
+            end: "top 30%",
+            scrub: 0.4,
           },
         }
       );
     });
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, [activeTab, selectedSchool, loading]);
-
-  // Prepare data for AI Query
-  const getAllDataForAI = () => {
-    const allData: any[] = [];
-    
-    // Add registrations
-    registrations.forEach(r => {
-      allData.push({
-        type: "Registration",
-        event: r.eventName,
-        total: r.total.toString(),
-        sciences: r.schoolOfSciences.toString(),
-        social: r.schoolOfSocialSciences.toString(),
-        business: r.schoolOfBusiness.toString(),
-        commerce: r.schoolOfCommerce.toString(),
-        psychology: r.schoolOfPsychologicalSciences.toString()
-      });
-    });
-
-    // Add school stats
-    Object.entries(schoolData).forEach(([schoolName, data]: [string, any]) => {
-      data.forEach((d: any) => {
-        allData.push({
-          type: "School Stat",
-          school: schoolName,
-          event: d.event,
-          totalReg: d.totalReg.toString(),
-          turnUp: d.turnUp.toString(),
-          turnDown: d.turnDown.toString(),
-          score: d.score.toString()
-        });
-      });
-    });
-
-    // Add winners
-    winners.forEach(w => {
-      allData.push({
-        type: "Winner",
-        event: w.event,
-        position: w.position,
-        school: w.school,
-        class: w.class,
-        team: w.team
-      });
-    });
-
-    return allData;
-  };
-
-  // Prepare comparison data
-  const getComparisonData = () => {
-    return SCHOOL_NAMES.map(school => {
-      const data = schoolData[school] || [];
-      const totalScore = data.reduce((acc: number, curr: any) => acc + curr.score, 0);
-      const totalReg = data.reduce((acc: number, curr: any) => acc + curr.totalReg, 0);
-      const totalTurnUp = data.reduce((acc: number, curr: any) => acc + curr.turnUp, 0);
-      return {
-        name: school.replace("School of ", ""),
-        score: totalScore,
-        registrations: totalReg,
-        turnUp: totalTurnUp,
-        fullName: school
-      };
-    });
-  };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center text-white">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500" />
       </div>
     );
   }
 
-  const currentSchoolData = schoolData[selectedSchool] || [];
-  const filteredSchoolData = currentSchoolData.filter((row: any) => 
-    row.event.toLowerCase().includes(schoolSearch.toLowerCase())
+  // ---------- Rankings from POINTS_TABLE ----------
+
+  const schoolRankings: SchoolRanking[] = SCHOOL_NAMES.map((name) => {
+    const key = SCHOOL_KEY_MAP[name];
+    const totalPoints = points.reduce(
+      (acc, row) => acc + (Number(row[key]) || 0),
+      0
+    );
+    const totalEvents = points.filter(
+      (row) => (Number(row[key]) || 0) > 0
+    ).length;
+    return {
+      name,
+      shortName: name.replace("School of ", ""),
+      key,
+      totalPoints,
+      totalEvents,
+      rank: 0,
+    };
+  })
+    .sort((a, b) => b.totalPoints - a.totalPoints)
+    .map((s, idx) => ({ ...s, rank: idx + 1 }));
+
+  const topSchool = schoolRankings[0];
+  const totalPointsAll = schoolRankings.reduce(
+    (acc, s) => acc + s.totalPoints,
+    0
   );
 
-  const filteredWinners = winners.filter((row: any) => 
-    row.event.toLowerCase().includes(winnerSearch.toLowerCase()) ||
-    row.school.toLowerCase().includes(winnerSearch.toLowerCase()) ||
-    row.team.toLowerCase().includes(winnerSearch.toLowerCase())
+  // school-wise from POINTS_TABLE
+  const currentSchoolKey = SCHOOL_KEY_MAP[selectedSchool];
+  const schoolPointsByEvent = points.map((row) => ({
+    event: row.event,
+    points: Number(row[currentSchoolKey]) || 0,
+  }));
+
+  const filteredSchoolPoints = schoolPointsByEvent
+    .filter((e) =>
+      e.event.toLowerCase().includes(schoolSearch.toLowerCase())
+    )
+    .sort((a, b) => b.points - a.points);
+
+  const totalSchoolPoints = schoolPointsByEvent.reduce(
+    (acc, r) => acc + r.points,
+    0
   );
 
-  const totalSchoolScore = currentSchoolData.reduce((acc: number, curr: any) => acc + curr.score, 0);
-  const totalSchoolReg = currentSchoolData.reduce((acc: number, curr: any) => acc + curr.totalReg, 0);
-  const totalSchoolTurnUp = currentSchoolData.reduce((acc: number, curr: any) => acc + curr.turnUp, 0);
+  // comparison: stacked by school per event (from POINTS_TABLE)
+  const comparisonEvents = points
+    .filter((row) =>
+      row.event.toLowerCase().includes(eventSearch.toLowerCase())
+    )
+    .map((row) => ({
+      event: row.event,
+      Sciences: row.school_of_sciences,
+      Psychology: row.school_of_psychological_sciences,
+      "Social Sciences": row.school_of_social_sciences,
+      Business: row.school_of_business_and_management,
+      Commerce: row.school_of_commerce,
+    }));
+
+  // for AI Query
+  const getAllDataForAI = () => {
+    const all: any[] = [];
+    points.forEach((p) =>
+      all.push({
+        type: "Points",
+        event: p.event,
+        sciences: String(p.school_of_sciences),
+        psychology: String(p.school_of_psychological_sciences),
+        social: String(p.school_of_social_sciences),
+        business: String(p.school_of_business_and_management),
+        commerce: String(p.school_of_commerce),
+      })
+    );
+    return all;
+  };
+
+  // winners filter
+  const filteredWinners = winners.filter(
+    (row: any) =>
+      row.event.toLowerCase().includes(winnerSearch.toLowerCase()) ||
+      row.school.toLowerCase().includes(winnerSearch.toLowerCase()) ||
+      row.team.toLowerCase().includes(winnerSearch.toLowerCase())
+  );
+
+  // ---------- layout with full‑page gradient background ----------
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-hidden">
-      {/* Hero Section */}
+    <div className="min-h-screen text-white overflow-hidden relative">
+      {/* full-page gradient background */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#2b0640] via-[#050012] to-[#041a3a]" />
+      <div className="fixed inset-0 -z-10 opacity-60">
+        <div className="absolute -left-32 -top-40 w-[500px] h-[500px] rounded-full blur-3xl bg-purple-600/40" />
+        <div className="absolute right-[-10%] top-[5%] w-[520px] h-[520px] rounded-full blur-3xl bg-blue-500/40" />
+        <div className="absolute left-1/3 bottom-[-25%] w-[520px] h-[520px] rounded-full blur-3xl bg-pink-500/35" />
+      </div>
+
+      {/* hero */}
       <section
         ref={heroRef}
-        className="relative h-[60vh] flex items-center justify-center overflow-hidden"
+        className="relative h-[55vh] flex items-center justify-center overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-black to-blue-900/30" />
-        <div 
-          className="absolute top-0 left-0 w-[500px] h-[500px] animate-pulse pointer-events-none"
-          style={{ background: "radial-gradient(circle, rgba(168,85,247,0.3) 0%, transparent 70%)" }}
-        />
-        <div 
-          className="absolute bottom-0 right-0 w-[500px] h-[500px] animate-pulse pointer-events-none"
-          style={{ 
-            background: "radial-gradient(circle, rgba(59,130,246,0.3) 0%, transparent 70%)",
-            animationDelay: "1s" 
-          }}
-        />
-
         <div className="relative z-10 max-w-6xl mx-auto px-4 text-center">
-          <div className="hero-element mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
+          <div className="hero-element mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 backdrop-blur-md border border-white/15">
             <Trophy className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm font-medium">Live Analytics</span>
+            <span className="text-xs md:text-sm font-medium tracking-wide">
+              Live Analytics
+            </span>
           </div>
 
-          <h1 className="hero-element text-5xl md:text-7xl font-black mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent leading-tight">
+          <h1 className="hero-element text-5xl md:text-7xl font-black mb-4 bg-gradient-to-r from-pink-200 via-violet-200 to-blue-200 bg-clip-text text-transparent leading-tight">
             Points Dashboard
           </h1>
 
-          <p className="hero-element text-xl mb-8 text-white/80 max-w-2xl mx-auto">
-            Real-time tracking of registrations, scores, and winners across all schools.
+          <p className="hero-element text-lg md:text-xl mb-2 text-white/85 max-w-2xl mx-auto">
+            Real-time tracking of registrations, scores, and winners across all
+            schools.
           </p>
         </div>
       </section>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-12 space-y-12">
-        {/* Tab Navigation */}
-        <section data-reveal className="sticky top-20 z-40 bg-black/80 backdrop-blur-xl pb-6 border-b border-white/10">
-          <div className="flex gap-4 overflow-x-auto no-scrollbar">
+      {/* main */}
+      <div className="max-w-7xl mx-auto px-4 py-10 space-y-12 relative z-10">
+        {/* tabs */}
+        <section
+          data-reveal
+          className="sticky top-20 z-40 bg-black/45 backdrop-blur-xl pb-4 border-b border-white/10 rounded-t-2xl"
+        >
+          <div className="flex gap-4 overflow-x-auto no-scrollbar px-2 pt-2">
             {[
-              { id: "school-wise", label: "🏫 School-Wise", icon: Users },
+              { id: "points", label: "🏆 Points", icon: Trophy },
+              { id: "school-wise", label: "🏫 School‑Wise", icon: Users },
               { id: "comparison", label: "📊 Comparison", icon: BarChart2 },
               { id: "graphs", label: "📈 Graphs", icon: PieChartIcon },
-              { id: "winners", label: "🏆 Winners", icon: Award },
-              { id: "ai-query", label: "🤖 AI Query", icon: Sparkles }
+              { id: "winners", label: "🥇 Winners", icon: Award },
+              { id: "ai-query", label: "🤖 AI Query", icon: Sparkles },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-6 py-4 font-semibold text-lg transition-all duration-300 relative whitespace-nowrap rounded-t-lg ${
-                  activeTab === tab.id 
-                    ? "text-white bg-white/5 border-b-2 border-purple-500" 
-                    : "text-white/50 hover:text-white/70 hover:bg-white/5"
+                className={`flex items-center gap-2 px-6 py-3 text-sm md:text-base font-semibold transition-all duration-200 whitespace-nowrap rounded-t-xl ${
+                  activeTab === tab.id
+                    ? "text-white bg-white/10 border-b-2 border-purple-400"
+                    : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
               >
                 <tab.icon className="w-5 h-5" />
@@ -385,90 +447,249 @@ export default function PointsCalculation() {
           </div>
         </section>
 
-        {/* TAB 1: SCHOOL-WISE ANALYSIS */}
+        {/* POINTS TAB (from POINTS_TABLE) */}
+        {activeTab === "points" && (
+          <section
+            data-reveal
+            className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500"
+          >
+            <MagicBento
+              enableStars
+              enableSpotlight
+              enableBorderGlow
+              enableTilt
+              clickEffect
+              enableMagnetism
+              glowColor="132,0,255"
+              spotlightRadius={260}
+              particleCount={10}
+            >
+              <StatCard
+                icon={Crown}
+                emphasis
+                label="Leading school"
+                value={topSchool ? topSchool.shortName : "-"}
+              />
+              <StatCard
+                icon={Trophy}
+                label="Top score"
+                value={topSchool ? topSchool.totalPoints : 0}
+              />
+              <StatCard
+                icon={Activity}
+                label="Total events in points table"
+                value={new Set(points.map((p) => p.event)).size}
+              />
+              <StatCard
+                icon={TrendingUp}
+                label="Total points awarded"
+                value={totalPointsAll}
+              />
+            </MagicBento>
+
+            {/* event-wise points table */}
+            <Card className="p-0 overflow-hidden mt-4">
+              <div className="p-4 border-b border-white/10 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-3 flex-1">
+                  <Search className="w-5 h-5 text-white/50" />
+                  <input
+                    type="text"
+                    placeholder="Search events in points table…"
+                    value={pointsEventSearch}
+                    onChange={(e) => setPointsEventSearch(e.target.value)}
+                    className="bg-transparent border-none outline-none text-sm md:text-base text-white placeholder-white/35 w-full"
+                  />
+                </div>
+                <span className="text-xs text-white/50">
+                  {points.filter((p) =>
+                    p.event
+                      .toLowerCase()
+                      .includes(pointsEventSearch.toLowerCase())
+                  ).length}{" "}
+                  of {points.length} events
+                </span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-white/5 text-white/80 uppercase tracking-wider text-xs">
+                    <tr>
+                      <th className="px-6 py-3 font-bold">Event</th>
+                      <th className="px-6 py-3 text-center">Sciences</th>
+                      <th className="px-6 py-3 text-center">Psychology</th>
+                      <th className="px-6 py-3 text-center">Social Sci.</th>
+                      <th className="px-6 py-3 text-center">Business</th>
+                      <th className="px-6 py-3 text-center">Commerce</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {points
+                      .filter((p) =>
+                        p.event
+                          .toLowerCase()
+                          .includes(pointsEventSearch.toLowerCase())
+                      )
+                      .map((row, idx) => {
+                        const values = [
+                          row.school_of_sciences,
+                          row.school_of_psychological_sciences,
+                          row.school_of_social_sciences,
+                          row.school_of_business_and_management,
+                          row.school_of_commerce,
+                        ];
+                        const maxVal = Math.max(...values);
+                        return (
+                          <tr
+                            key={idx}
+                            className="hover:bg-white/6 transition-colors"
+                          >
+                            <td className="px-6 py-3 font-medium text-white">
+                              {row.event}
+                            </td>
+                            {values.map((val, i) => (
+                              <td
+                                key={i}
+                                className={`px-6 py-3 text-center font-semibold ${
+                                  val === maxVal && val > 0
+                                    ? "text-yellow-300 bg-yellow-500/10"
+                                    : "text-white/75"
+                                }`}
+                              >
+                                {val}
+                              </td>
+                            ))}
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                  <tfoot className="bg-purple-500/10">
+                    <tr className="font-bold text-white">
+                      <td className="px-6 py-3">TOTAL</td>
+                      {schoolRankings.map((s, idx) => (
+                        <td
+                          key={idx}
+                          className="px-6 py-3 text-center text-purple-200"
+                        >
+                          {s.totalPoints}
+                        </td>
+                      ))}
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </Card>
+          </section>
+        )}
+
+        {/* SCHOOL‑WISE TAB (derived from POINTS_TABLE) */}
         {activeTab === "school-wise" && (
-          <section data-reveal className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Select School
-              </h2>
-              <SchoolSelector 
-                selected={selectedSchool} 
-                onChange={setSelectedSchool} 
+          <section
+            data-reveal
+            className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500"
+          >
+            <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-purple-200 to-pink-200 bg-clip-text text-transparent">
+                  School‑wise points
+                </h2>
+                <p className="text-sm text-white/70">
+                  Choose a school to see how its points are distributed across
+                  events in the points table.
+                </p>
+              </div>
+              <SchoolSelector
+                selected={selectedSchool}
+                onChange={setSelectedSchool}
                 schools={SCHOOL_NAMES}
               />
             </div>
 
-            <MagicBento
-              enableStars={true}
-              enableSpotlight={true}
-              enableBorderGlow={true}
-              enableTilt={true}
-              clickEffect={true}
-              enableMagnetism={true}
-              glowColor="132, 0, 255"
-              spotlightRadius={300}
-              particleCount={12}
-            >
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <StatCard
-                icon={Trophy}
-                value={totalSchoolScore}
-                label="Total Score"
+                icon={Medal}
+                label="Rank of selected"
+                value={
+                  (() => {
+                    const r = schoolRankings.find(
+                      (s) => s.name === selectedSchool
+                    );
+                    return r ? `#${r.rank}` : "-";
+                  })()
+                }
               />
               <StatCard
-                icon={Users}
-                value={totalSchoolReg}
-                label="Total Registrations"
+                icon={Trophy}
+                label="Total points"
+                value={totalSchoolPoints}
+              />
+              <StatCard
+                icon={Activity}
+                label="Events with points"
+                value={schoolPointsByEvent.filter((e) => e.points > 0).length}
               />
               <StatCard
                 icon={TrendingUp}
-                value={totalSchoolTurnUp}
-                label="Total Turn Up"
+                label="Share of total"
+                value={
+                  totalPointsAll > 0
+                    ? `${(
+                        (totalSchoolPoints / totalPointsAll) *
+                        100
+                      ).toFixed(1)}%`
+                    : "0.0%"
+                }
               />
-               <StatCard
-                icon={Activity}
-                value={currentSchoolData.length}
-                label="Events Participated"
-              />
-            </MagicBento>
+            </div>
 
-            <Card className="p-0 overflow-hidden mt-8">
-              <div className="p-4 border-b border-white/10 flex items-center gap-4">
-                <Search className="w-5 h-5 text-white/50" />
-                <input 
-                  type="text" 
-                  placeholder="Filter events..." 
-                  value={schoolSearch}
-                  onChange={(e) => setSchoolSearch(e.target.value)}
-                  className="bg-transparent border-none outline-none text-white placeholder-white/30 w-full"
-                />
+            <Card className="p-0 overflow-hidden mt-6">
+              <div className="p-4 border-b border-white/10 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-3 flex-1">
+                  <Search className="w-5 h-5 text-white/50" />
+                  <input
+                    type="text"
+                    placeholder={`Search events for ${selectedSchool.replace(
+                      "School of ",
+                      ""
+                    )}…`}
+                    value={schoolSearch}
+                    onChange={(e) => setSchoolSearch(e.target.value)}
+                    className="bg-transparent border-none outline-none text-sm md:text-base text-white placeholder-white/35 w-full"
+                  />
+                </div>
+                <span className="text-xs text-white/50">
+                  {filteredSchoolPoints.length} of{" "}
+                  {schoolPointsByEvent.length} events
+                </span>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
-                  <thead className="bg-white/5 text-white/80 uppercase tracking-wider">
+                  <thead className="bg-white/5 text-white/80 uppercase tracking-wider text-xs">
                     <tr>
-                      <th className="px-6 py-4 font-bold">Event</th>
-                      <th className="px-6 py-4 text-right">Total Reg</th>
-                      <th className="px-6 py-4 text-right">Turn Up</th>
-                      <th className="px-6 py-4 text-right">Turn Down</th>
-                      <th className="px-6 py-4 text-right font-bold text-white">Score</th>
+                      <th className="px-6 py-3 font-bold">Event</th>
+                      <th className="px-6 py-3 text-right">Points</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {filteredSchoolData.length > 0 ? (
-                      filteredSchoolData.map((row: any, idx: number) => (
-                        <tr key={idx} className="hover:bg-white/5 transition-colors">
-                          <td className="px-6 py-4 font-medium text-white">{row.event}</td>
-                          <td className="px-6 py-4 text-right text-white/70">{row.totalReg}</td>
-                          <td className="px-6 py-4 text-right text-emerald-400">{row.turnUp}</td>
-                          <td className="px-6 py-4 text-right text-red-400">{row.turnDown}</td>
-                          <td className="px-6 py-4 text-right font-bold text-purple-400">{row.score}</td>
+                    {filteredSchoolPoints.length ? (
+                      filteredSchoolPoints.map((row, idx) => (
+                        <tr
+                          key={idx}
+                          className="hover:bg-white/6 transition-colors"
+                        >
+                          <td className="px-6 py-3 font-medium text-white">
+                            {row.event}
+                          </td>
+                          <td className="px-6 py-3 text-right font-bold text-purple-200">
+                            {row.points}
+                          </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={5} className="px-6 py-8 text-center text-white/50">
-                          No events found matching "{schoolSearch}"
+                        <td
+                          colSpan={2}
+                          className="px-6 py-8 text-center text-white/50"
+                        >
+                          No events found matching “{schoolSearch}”.
                         </td>
                       </tr>
                     )}
@@ -479,156 +700,250 @@ export default function PointsCalculation() {
           </section>
         )}
 
-        {/* TAB 2: COMPARISON */}
+        {/* COMPARISON TAB – stacked chart based on POINTS_TABLE */}
         {activeTab === "comparison" && (
-          <section data-reveal className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <section
+            data-reveal
+            className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <Card>
-                <h3 className="text-xl font-bold mb-6 text-white">Total Scores Comparison</h3>
-                <div className="h-[350px] w-full">
+                <h3 className="text-xl font-bold mb-6 text-white">
+                  Total points by school
+                </h3>
+                <div className="h-[320px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={getComparisonData()}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                    <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={12} tickFormatter={(val) => val.split(' ').pop()} />
-                    <YAxis stroke="rgba(255,255,255,0.5)" />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }}
-                      itemStyle={{ color: '#fff' }}
-                    />
-                    <Bar dataKey="score" fill="#8884d8" radius={[4, 4, 0, 0]}>
-                      {getComparisonData().map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                    <BarChart data={schoolRankings}>
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="rgba(255,255,255,0.08)"
+                      />
+                      <XAxis
+                        dataKey="shortName"
+                        stroke="rgba(255,255,255,0.7)"
+                        fontSize={12}
+                      />
+                      <YAxis stroke="rgba(255,255,255,0.7)" />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#050509",
+                          border: "1px solid rgba(255,255,255,0.15)",
+                        }}
+                        itemStyle={{ color: "#fff" }}
+                      />
+                      <Bar dataKey="totalPoints" radius={[6, 6, 0, 0]}>
+                        {schoolRankings.map((_, idx) => (
+                          <Cell
+                            key={idx}
+                            fill={COLORS[idx % COLORS.length]}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </Card>
 
               <Card>
-                <h3 className="text-xl font-bold mb-6 text-white">Registrations vs Turn Up</h3>
-                <div className="h-[350px] w-full">
+                <h3 className="text-xl font-bold mb-6 text-white">
+                  Events with points
+                </h3>
+                <div className="h-[320px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={getComparisonData()}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                    <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={12} tickFormatter={(val) => val.split(' ').pop()} />
-                    <YAxis stroke="rgba(255,255,255,0.5)" />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }}
-                      itemStyle={{ color: '#fff' }}
-                    />
-                    <Legend />
-                    <Bar dataKey="registrations" fill="#82ca9d" name="Registrations" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="turnUp" fill="#ffc658" name="Turn Up" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                    <LineChart data={schoolRankings}>
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="rgba(255,255,255,0.08)"
+                      />
+                      <XAxis
+                        dataKey="shortName"
+                        stroke="rgba(255,255,255,0.7)"
+                        fontSize={12}
+                      />
+                      <YAxis stroke="rgba(255,255,255,0.7)" />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#050509",
+                          border: "1px solid rgba(255,255,255,0.15)",
+                        }}
+                        itemStyle={{ color: "#fff" }}
+                      />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="totalEvents"
+                        stroke="#82ca9d"
+                        strokeWidth={2.2}
+                        dot={{ r: 4 }}
+                        name="Events with points"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
                 </div>
               </Card>
             </div>
 
-            <Card className="p-0 overflow-hidden">
-              <h3 className="text-xl font-bold p-6 border-b border-white/10 text-white">Overall Standings</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                  <thead className="bg-white/5 text-white/80 uppercase tracking-wider">
-                    <tr>
-                      <th className="px-6 py-4 font-bold">Rank</th>
-                      <th className="px-6 py-4">School</th>
-                      <th className="px-6 py-4 text-right">Total Score</th>
-                      <th className="px-6 py-4 text-right">Registrations</th>
-                      <th className="px-6 py-4 text-right">Turn Up</th>
-                      <th className="px-6 py-4 text-right">Turnout %</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {getComparisonData()
-                      .sort((a, b) => b.score - a.score)
-                      .map((row, idx) => (
-                        <tr key={idx} className="hover:bg-white/5 transition-colors">
-                          <td className="px-6 py-4 font-bold text-white">#{idx + 1}</td>
-                          <td className="px-6 py-4 font-medium text-white">{row.fullName}</td>
-                          <td className="px-6 py-4 text-right font-bold text-purple-400">{row.score}</td>
-                          <td className="px-6 py-4 text-right text-white/70">{row.registrations}</td>
-                          <td className="px-6 py-4 text-right text-emerald-400">{row.turnUp}</td>
-                          <td className="px-6 py-4 text-right text-blue-400">
-                            {row.registrations > 0 ? ((row.turnUp / row.registrations) * 100).toFixed(1) : 0}%
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
+            <Card>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                <h3 className="text-xl font-bold text-white">
+                  Points per event (all schools)
+                </h3>
+                <div className="flex items-center gap-3 max-w-md w-full">
+                  <Search className="w-4 h-4 text-white/60" />
+                  <input
+                    type="text"
+                    placeholder="Filter events by name…"
+                    value={eventSearch}
+                    onChange={(e) => setEventSearch(e.target.value)}
+                    className="bg-transparent border-b border-white/20 pb-1 text-sm text-white placeholder-white/40 flex-1 outline-none"
+                  />
+                </div>
+              </div>
+              <div className="h-[420px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={comparisonEvents}>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="rgba(255,255,255,0.1)"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="event"
+                      stroke="rgba(255,255,255,0.7)"
+                      fontSize={11}
+                      tickLine={false}
+                    />
+                    <YAxis stroke="rgba(255,255,255,0.7)" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#050509",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                      }}
+                      itemStyle={{ color: "#fff" }}
+                    />
+                    <Legend />
+                    <Bar dataKey="Sciences" stackId="pts" fill={COLORS[0]} />
+                    <Bar dataKey="Psychology" stackId="pts" fill={COLORS[1]} />
+                    <Bar
+                      dataKey="Social Sciences"
+                      stackId="pts"
+                      fill={COLORS[2]}
+                    />
+                    <Bar dataKey="Business" stackId="pts" fill={COLORS[3]} />
+                    <Bar dataKey="Commerce" stackId="pts" fill={COLORS[4]} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </Card>
           </section>
         )}
 
-        {/* TAB 3: GRAPHS */}
+        {/* GRAPHS */}
         {activeTab === "graphs" && (
-          <section data-reveal className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <section
+            data-reveal
+            className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500"
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <Card>
-                <h3 className="text-xl font-bold mb-6 text-white">Score Distribution</h3>
-                <div className="h-[350px] w-full">
+                <h3 className="text-xl font-bold mb-6 text-white">
+                  Score distribution
+                </h3>
+                <div className="h-[320px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                    <Pie
-                      data={getComparisonData()}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={120}
-                      fill="#8884d8"
-                      dataKey="score"
-                    >
-                      {getComparisonData().map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }} />
-                  </PieChart>
-                </ResponsiveContainer>
+                      <Pie
+                        data={schoolRankings}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ shortName, percent }) =>
+                          `${shortName} ${(percent * 100).toFixed(0)}%`
+                        }
+                        outerRadius={120}
+                        dataKey="totalPoints"
+                      >
+                        {schoolRankings.map((_, idx) => (
+                          <Cell
+                            key={idx}
+                            fill={COLORS[idx % COLORS.length]}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#050509",
+                          border: "1px solid rgba(255,255,255,0.15)",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
               </Card>
 
               <Card>
-                <h3 className="text-xl font-bold mb-6 text-white">Performance Radar</h3>
-                <div className="h-[350px] w-full">
+                <h3 className="text-xl font-bold mb-6 text-white">
+                  Performance radar
+                </h3>
+                <div className="h-[320px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={getComparisonData()}>
-                    <PolarGrid stroke="rgba(255,255,255,0.1)" />
-                    <PolarAngleAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10 }} />
-                    <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={{ fill: 'rgba(255,255,255,0.5)' }} />
-                    <Radar name="Score" dataKey="score" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
-                    <Radar name="Turn Up" dataKey="turnUp" stroke="#82ca9d" fill="#82ca9d" fillOpacity={0.6} />
-                    <Legend />
-                    <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }} />
-                  </RadarChart>
-                </ResponsiveContainer>
+                    <RadarChart
+                      cx="50%"
+                      cy="50%"
+                      outerRadius="80%"
+                      data={schoolRankings}
+                    >
+                      <PolarGrid stroke="rgba(255,255,255,0.12)" />
+                      <PolarAngleAxis
+                        dataKey="shortName"
+                        tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 10 }}
+                      />
+                      <PolarRadiusAxis
+                        angle={30}
+                        domain={[0, "auto"]}
+                        tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 10 }}
+                      />
+                      <Radar
+                        name="Total points"
+                        dataKey="totalPoints"
+                        stroke="#8884d8"
+                        fill="#8884d8"
+                        fillOpacity={0.6}
+                      />
+                      <Radar
+                        name="Events"
+                        dataKey="totalEvents"
+                        stroke="#82ca9d"
+                        fill="#82ca9d"
+                        fillOpacity={0.5}
+                      />
+                      <Legend />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#050509",
+                          border: "1px solid rgba(255,255,255,0.15)",
+                        }}
+                      />
+                    </RadarChart>
+                  </ResponsiveContainer>
                 </div>
               </Card>
             </div>
           </section>
         )}
 
-        {/* TAB 4: WINNERS */}
+        {/* WINNERS */}
         {activeTab === "winners" && (
-          <section data-reveal className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold flex items-center gap-3 mb-2">
-                <span className="w-1 h-10 bg-gradient-to-b from-blue-400 to-cyan-400 rounded-full" />
-                <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                  Winners List
-                </span>
-              </h2>
-            </div>
-
+          <section
+            data-reveal
+            className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500"
+          >
             <Card className="p-0 overflow-hidden">
               <div className="p-4 border-b border-white/10 flex items-center gap-4">
                 <Search className="w-5 h-5 text-white/50" />
-                <input 
-                  type="text" 
-                  placeholder="Search winners by event, school, or team..." 
+                <input
+                  type="text"
+                  placeholder="Search winners by event, school, or team..."
                   value={winnerSearch}
                   onChange={(e) => setWinnerSearch(e.target.value)}
                   className="bg-transparent border-none outline-none text-white placeholder-white/30 w-full"
@@ -636,38 +951,56 @@ export default function PointsCalculation() {
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
-                  <thead className="bg-white/5 text-white/80 uppercase tracking-wider">
+                  <thead className="bg-white/5 text-white/80 uppercase tracking-wider text-xs">
                     <tr>
-                      <th className="px-6 py-4 font-bold">Event</th>
-                      <th className="px-6 py-4">Position</th>
-                      <th className="px-6 py-4">School</th>
-                      <th className="px-6 py-4">Class</th>
-                      <th className="px-6 py-4 text-right">Team</th>
+                      <th className="px-6 py-3 font-bold">Event</th>
+                      <th className="px-6 py-3">Position</th>
+                      <th className="px-6 py-3">School</th>
+                      <th className="px-6 py-3">Class</th>
+                      <th className="px-6 py-3 text-right">Team</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {filteredWinners.length > 0 ? (
+                    {filteredWinners.length ? (
                       filteredWinners.map((row: any, idx: number) => (
-                        <tr key={idx} className="hover:bg-white/5 transition-colors">
-                          <td className="px-6 py-4 font-medium text-white">{row.event}</td>
-                          <td className="px-6 py-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                              row.position === "1st" ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30" :
-                              row.position === "2nd" ? "bg-gray-400/20 text-gray-300 border border-gray-400/30" :
-                              "bg-orange-700/20 text-orange-400 border border-orange-700/30"
-                            }`}>
+                        <tr
+                          key={idx}
+                          className="hover:bg-white/6 transition-colors"
+                        >
+                          <td className="px-6 py-3 font-medium text-white">
+                            {row.event}
+                          </td>
+                          <td className="px-6 py-3">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                row.position === "1st"
+                                  ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/35"
+                                  : row.position === "2nd"
+                                  ? "bg-gray-400/20 text-gray-200 border border-gray-400/35"
+                                  : "bg-orange-700/20 text-orange-300 border border-orange-700/35"
+                              }`}
+                            >
                               {row.position}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-white/70">{row.school}</td>
-                          <td className="px-6 py-4 text-white/70">{row.class}</td>
-                          <td className="px-6 py-4 text-right font-mono text-cyan-400">{row.team}</td>
+                          <td className="px-6 py-3 text-white/80">
+                            {row.school}
+                          </td>
+                          <td className="px-6 py-3 text-white/75">
+                            {row.class}
+                          </td>
+                          <td className="px-6 py-3 text-right font-mono text-cyan-300">
+                            {row.team}
+                          </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={5} className="px-6 py-8 text-center text-white/50">
-                          No winners found matching "{winnerSearch}"
+                        <td
+                          colSpan={5}
+                          className="px-6 py-8 text-center text-white/50"
+                        >
+                          No winners found matching “{winnerSearch}”.
                         </td>
                       </tr>
                     )}
@@ -678,18 +1011,51 @@ export default function PointsCalculation() {
           </section>
         )}
 
-        {/* TAB 5: AI QUERY */}
+        {/* AI QUERY */}
         {activeTab === "ai-query" && (
-          <section data-reveal className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <AIQuery data={getAllDataForAI().map(item => 
-              Object.fromEntries(Object.entries(item).map(([k, v]) => [k, String(v)]))
-            )} />
+          <section
+            data-reveal
+            className="animate-in fade-in slide-in-from-bottom-4 duration-500"
+          >
+            <AIQuery
+              data={getAllDataForAI().map((item) =>
+                Object.fromEntries(
+                  Object.entries(item).map(([k, v]) => [k, String(v)])
+                )
+              )}
+            />
           </section>
         )}
       </div>
 
-      {/* Footer Glow */}
-      <div className="h-32 bg-gradient-to-t from-purple-900/20 to-transparent" />
+      <div className="h-20" />
+
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+          background: linear-gradient(180deg, #7c3aed, #ec4899);
+          border-radius: 999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(180deg, #8b5cf6, #f472b6);
+        }
+        .card--border-glow::before {
+          content: '';
+          position: absolute;
+          inset: -2px;
+          background: radial-gradient(circle at top, rgba(168,85,247,0.4), transparent 55%);
+          border-radius: inherit;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          z-index: -1;
+          filter: blur(12px);
+        }
+        .card--border-glow:hover::before { opacity: 1; }
+      `}</style>
     </div>
   );
 }
