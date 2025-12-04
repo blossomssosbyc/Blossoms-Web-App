@@ -47,7 +47,7 @@ export default function ReportGeneration() {
   const [generating, setGenerating] = useState(false);
   const [selectedDept, setSelectedDept] = useState<string>("All Departments");
   
-  const [activeModal, setActiveModal] = useState<"bar" | "pie" | null>(null);
+  const [activeModal, setActiveModal] = useState<"bar" | "pie" | "line" | "area" | "radar" | null>(null);
 
   // Data States
   const [registrations, setRegistrations] = useState<any[]>([]);
@@ -126,18 +126,29 @@ export default function ReportGeneration() {
   const fullChartData = getFilteredData();
   // Sort and slice for summary view (Top 5)
   const summaryChartData = [...fullChartData]
-    .sort((a, b) => b.score - a.score)
+    .sort((a: any, b: any) => b.score - a.score)
     .slice(0, 5);
 
   // Modal Component
-  const ChartModal = ({ type, onClose }: { type: "bar" | "pie"; onClose: () => void }) => {
+  const ChartModal = ({ type, onClose }: { type: "bar" | "pie" | "line" | "area" | "radar"; onClose: () => void }) => {
+    const getChartTitle = () => {
+      switch(type) {
+        case "bar": return "Performance Overview (Full Detail)";
+        case "pie": return "Score Distribution (Full Detail)";
+        case "line": return "Registration Trends (Full Detail)";
+        case "area": return "Volume Analysis (Full Detail)";
+        case "radar": return "Metric Comparison (Full Detail)";
+        default: return "Chart Detail";
+      }
+    };
+
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
         <div className="bg-[#0f172a] border border-purple-500/30 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl shadow-purple-500/20" onClick={e => e.stopPropagation()}>
           <div className="p-6 border-b border-white/10 flex justify-between items-center bg-gradient-to-r from-purple-900/20 to-transparent">
             <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-              {type === "bar" ? <BarChart3 className="w-6 h-6 text-purple-400" /> : <PieChartIcon className="w-6 h-6 text-pink-400" />}
-              {type === "bar" ? "Performance Overview (Full Detail)" : "Score Distribution (Full Detail)"}
+              <BarChart3 className="w-6 h-6 text-purple-400" />
+              {getChartTitle()}
             </h3>
             <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
               <span className="text-2xl text-white/50 hover:text-white">&times;</span>
@@ -151,45 +162,52 @@ export default function ReportGeneration() {
                 {type === "bar" ? (
                   <BarChart data={fullChartData} margin={{ top: 20, right: 30, left: 20, bottom: 100 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                    <XAxis 
-                      dataKey="name" 
-                      stroke="rgba(255,255,255,0.5)" 
-                      fontSize={12} 
-                      angle={-45}
-                      textAnchor="end"
-                      interval={0}
-                      height={100}
-                    />
+                    <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={12} angle={-45} textAnchor="end" interval={0} height={100} />
                     <YAxis stroke="rgba(255,255,255,0.5)" />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }}
-                      itemStyle={{ color: '#fff' }}
-                    />
+                    <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }} itemStyle={{ color: '#fff' }} />
                     <Legend verticalAlign="top" height={36}/>
                     <Bar dataKey="registrations" name="Registrations" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="turnUp" name="Turn Up" fill="#10B981" radius={[4, 4, 0, 0]} />
                   </BarChart>
-                ) : (
+                ) : type === "pie" ? (
                   <PieChart>
-                    <Pie
-                      data={fullChartData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={100}
-                      outerRadius={180}
-                      paddingAngle={2}
-                      dataKey="score"
-                      label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    >
+                    <Pie data={fullChartData} cx="50%" cy="50%" innerRadius={100} outerRadius={180} paddingAngle={2} dataKey="score" label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}>
                       {fullChartData.map((entry: any, index: number) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }}
-                      itemStyle={{ color: '#fff' }}
-                    />
+                    <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }} itemStyle={{ color: '#fff' }} />
                   </PieChart>
+                ) : type === "line" ? (
+                  <LineChart data={fullChartData} margin={{ top: 20, right: 30, left: 20, bottom: 100 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={12} angle={-45} textAnchor="end" interval={0} height={100} />
+                    <YAxis stroke="rgba(255,255,255,0.5)" />
+                    <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }} itemStyle={{ color: '#fff' }} />
+                    <Legend verticalAlign="top" height={36}/>
+                    <Line type="monotone" dataKey="registrations" stroke="#8B5CF6" strokeWidth={3} dot={{r: 4}} />
+                    <Line type="monotone" dataKey="turnUp" stroke="#10B981" strokeWidth={3} dot={{r: 4}} />
+                  </LineChart>
+                ) : type === "area" ? (
+                  <AreaChart data={fullChartData} margin={{ top: 20, right: 30, left: 20, bottom: 100 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={12} angle={-45} textAnchor="end" interval={0} height={100} />
+                    <YAxis stroke="rgba(255,255,255,0.5)" />
+                    <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }} itemStyle={{ color: '#fff' }} />
+                    <Legend verticalAlign="top" height={36}/>
+                    <Area type="monotone" dataKey="registrations" stackId="1" stroke="#8B5CF6" fill="#8B5CF6" fillOpacity={0.3} />
+                    <Area type="monotone" dataKey="turnUp" stackId="1" stroke="#10B981" fill="#10B981" fillOpacity={0.3} />
+                  </AreaChart>
+                ) : (
+                  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={fullChartData}>
+                    <PolarGrid stroke="rgba(255,255,255,0.1)" />
+                    <PolarAngleAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10 }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={{ fill: 'rgba(255,255,255,0.5)' }} />
+                    <Radar name="Score" dataKey="score" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+                    <Radar name="Turn Up" dataKey="turnUp" stroke="#82ca9d" fill="#82ca9d" fillOpacity={0.6} />
+                    <Legend />
+                    <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }} />
+                  </RadarChart>
                 )}
               </ResponsiveContainer>
             </div>
@@ -199,6 +217,7 @@ export default function ReportGeneration() {
                <table className="w-full text-left text-sm">
                 <thead className="bg-white/5 text-white/60 uppercase">
                   <tr>
+                    <th className="px-6 py-4 font-bold">Rank</th>
                     <th className="px-6 py-4 font-bold">{selectedDept === "All Departments" ? "School" : "Event"}</th>
                     <th className="px-6 py-4 text-right">Registrations</th>
                     <th className="px-6 py-4 text-right">Turn Up</th>
@@ -207,8 +226,13 @@ export default function ReportGeneration() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {fullChartData.map((row: any, idx: number) => (
+                  {fullChartData
+                    .sort((a: any, b: any) => b.score - a.score)
+                    .map((row: any, idx: number) => (
                     <tr key={idx} className="hover:bg-white/5 transition-colors">
+                      <td className="px-6 py-4 font-bold text-yellow-400">
+                        {idx === 0 ? "🥇 1st" : idx === 1 ? "🥈 2nd" : idx === 2 ? "🥉 3rd" : `${idx + 1}th`}
+                      </td>
                       <td className="px-6 py-4 font-medium">{row.name}</td>
                       <td className="px-6 py-4 text-right">{row.registrations}</td>
                       <td className="px-6 py-4 text-right text-emerald-400">{row.turnUp}</td>
@@ -406,62 +430,97 @@ export default function ReportGeneration() {
           </div>
         </div>
 
-        {/* Preview Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Preview Section - Grid of Charts */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Bar Chart Card */}
           <div 
             className="bg-white/5 rounded-2xl p-6 border border-white/10 cursor-pointer hover:border-purple-500/50 transition-all group"
             onClick={() => setActiveModal("bar")}
           >
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-2 group-hover:text-purple-400 transition-colors">
-              <BarChart3 className="w-5 h-5 text-purple-400" />
-              Performance Overview (Top 5)
-              <span className="text-xs font-normal text-gray-500 ml-auto">Click to expand</span>
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2 group-hover:text-purple-400 transition-colors">
+              <BarChart3 className="w-5 h-5" /> Performance
             </h2>
-            <div className="h-[300px] pointer-events-none">
+            <div className="h-[200px] pointer-events-none">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={summaryChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis 
-                    dataKey="name" 
-                    stroke="rgba(255,255,255,0.5)" 
-                    fontSize={12} 
-                    tickFormatter={(val) => val.length > 10 ? val.substring(0, 10) + '...' : val}
-                  />
-                  <YAxis stroke="rgba(255,255,255,0.5)" />
-                  <Bar dataKey="registrations" name="Registrations" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="turnUp" name="Turn Up" fill="#10B981" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="registrations" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="turnUp" fill="#10B981" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
 
+          {/* Pie Chart Card */}
           <div 
             className="bg-white/5 rounded-2xl p-6 border border-white/10 cursor-pointer hover:border-pink-500/50 transition-all group"
             onClick={() => setActiveModal("pie")}
           >
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-2 group-hover:text-pink-400 transition-colors">
-              <PieChartIcon className="w-5 h-5 text-pink-400" />
-              Score Distribution (Top 5)
-              <span className="text-xs font-normal text-gray-500 ml-auto">Click to expand</span>
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2 group-hover:text-pink-400 transition-colors">
+              <PieChartIcon className="w-5 h-5" /> Distribution
             </h2>
-            <div className="h-[300px] pointer-events-none">
+            <div className="h-[200px] pointer-events-none">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={summaryChartData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="score"
-                  >
+                  <Pie data={summaryChartData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={5} dataKey="score">
                     {summaryChartData.map((entry: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Legend />
                 </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Line Chart Card */}
+          <div 
+            className="bg-white/5 rounded-2xl p-6 border border-white/10 cursor-pointer hover:border-blue-500/50 transition-all group"
+            onClick={() => setActiveModal("line")}
+          >
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2 group-hover:text-blue-400 transition-colors">
+              <TrendingUp className="w-5 h-5" /> Trends
+            </h2>
+            <div className="h-[200px] pointer-events-none">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={summaryChartData}>
+                  <Line type="monotone" dataKey="registrations" stroke="#3B82F6" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="turnUp" stroke="#10B981" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Area Chart Card */}
+          <div 
+            className="bg-white/5 rounded-2xl p-6 border border-white/10 cursor-pointer hover:border-orange-500/50 transition-all group"
+            onClick={() => setActiveModal("area")}
+          >
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2 group-hover:text-orange-400 transition-colors">
+              <Grid3X3 className="w-5 h-5" /> Volume
+            </h2>
+            <div className="h-[200px] pointer-events-none">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={summaryChartData}>
+                  <Area type="monotone" dataKey="registrations" stroke="#F97316" fill="#F97316" fillOpacity={0.3} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Radar Chart Card */}
+          <div 
+            className="bg-white/5 rounded-2xl p-6 border border-white/10 cursor-pointer hover:border-emerald-500/50 transition-all group"
+            onClick={() => setActiveModal("radar")}
+          >
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2 group-hover:text-emerald-400 transition-colors">
+              <Award className="w-5 h-5" /> Metrics
+            </h2>
+            <div className="h-[200px] pointer-events-none">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart cx="50%" cy="50%" outerRadius="70%" data={summaryChartData}>
+                  <PolarGrid stroke="rgba(255,255,255,0.1)" />
+                  <PolarAngleAxis dataKey="name" tick={false} />
+                  <Radar name="Score" dataKey="score" stroke="#10B981" fill="#10B981" fillOpacity={0.5} />
+                </RadarChart>
               </ResponsiveContainer>
             </div>
           </div>
@@ -470,12 +529,13 @@ export default function ReportGeneration() {
         {/* Data Table */}
         <div className="bg-white/5 rounded-2xl overflow-hidden border border-white/10">
           <div className="p-6 border-b border-white/10">
-            <h2 className="text-xl font-bold">Detailed Statistics</h2>
+            <h2 className="text-xl font-bold">Detailed Statistics & Rankings</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="bg-white/5 text-white/60 uppercase">
                 <tr>
+                  <th className="px-6 py-4 font-bold">Rank</th>
                   <th className="px-6 py-4 font-bold">{selectedDept === "All Departments" ? "School" : "Event"}</th>
                   <th className="px-6 py-4 text-right">Registrations</th>
                   <th className="px-6 py-4 text-right">Turn Up</th>
@@ -484,8 +544,13 @@ export default function ReportGeneration() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {fullChartData.map((row: any, idx: number) => (
+                {fullChartData
+                  .sort((a, b) => b.score - a.score)
+                  .map((row: any, idx: number) => (
                   <tr key={idx} className="hover:bg-white/5 transition-colors">
+                    <td className="px-6 py-4 font-bold text-yellow-400">
+                      {idx === 0 ? "🥇 1st" : idx === 1 ? "🥈 2nd" : idx === 2 ? "🥉 3rd" : `${idx + 1}th`}
+                    </td>
                     <td className="px-6 py-4 font-medium">{row.name}</td>
                     <td className="px-6 py-4 text-right">{row.registrations}</td>
                     <td className="px-6 py-4 text-right text-emerald-400">{row.turnUp}</td>
