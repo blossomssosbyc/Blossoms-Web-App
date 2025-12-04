@@ -99,7 +99,6 @@ export default function ReportGeneration() {
 
   // Prepare data based on selection
   const getFilteredData = () => {
-    // ... (existing logic) ...
     if (selectedDept === "All Departments") {
       return SCHOOL_NAMES.map(school => {
         const data = schoolData[school] || [];
@@ -224,15 +223,16 @@ export default function ReportGeneration() {
                     <Line type="monotone" dataKey="turnUp" stroke="#ff7300" strokeWidth={3} />
                   </ComposedChart>
                 ) : (
-                  <RadialBarChart cx="50%" cy="50%" innerRadius="10%" outerRadius="80%" barSize={10} data={fullChartData}>
-                    <RadialBar
-                      label={{ position: 'insideStart', fill: '#fff' }}
-                      background
-                      dataKey="score"
-                    />
-                    <Legend iconSize={10} layout="vertical" verticalAlign="middle" wrapperStyle={{ right: 0, top: 0, bottom: 0 }} />
-                    <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }} />
-                  </RadialBarChart>
+                  // <RadialBarChart cx="50%" cy="50%" innerRadius="10%" outerRadius="80%" barSize={10} data={fullChartData}>
+                  //   <RadialBar
+                  //     label={{ position: 'insideStart', fill: '#fff' }}
+                  //     background
+                  //     dataKey="score"
+                  //   />
+                  //   <Legend iconSize={10} layout="vertical" verticalAlign="middle" wrapperStyle={{ right: 0, top: 0, bottom: 0 }} />
+                  //   <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }} />
+                  // </RadialBarChart>
+                  <div className="flex items-center justify-center h-full text-white/50">Radial Chart Temporarily Disabled</div>
                 )}
               </ResponsiveContainer>
             </div>
@@ -569,7 +569,7 @@ export default function ReportGeneration() {
           </div>
 
           {/* Radial Bar Chart Card */}
-          <div 
+          {/* <div 
             className="bg-white/5 rounded-2xl p-6 border border-white/10 cursor-pointer hover:border-yellow-500/50 transition-all group md:col-span-2 lg:col-span-3"
             onClick={() => setActiveModal("radial")}
           >
@@ -588,7 +588,7 @@ export default function ReportGeneration() {
                 </RadialBarChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Data Table */}
