@@ -78,16 +78,18 @@ npm run dev
 Create `.env` files in both `client/` and `server/` directories:
 
 **server/.env**
+
 ```env
-PORT=5000
+PORT=3000
 DATABASE_URL=your_database_connection_string
 JWT_SECRET=your_jwt_secret
 NODE_ENV=development
 ```
 
 **client/.env**
+
 ```env
-VITE_API_URL=http://localhost:5000
+VITE_API_URL=http://localhost:3000
 VITE_APP_NAME=Blossoms Web App
 ```
 
