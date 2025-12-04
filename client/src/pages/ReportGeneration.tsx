@@ -21,6 +21,9 @@ import {
   Radar,
   AreaChart,
   Area,
+  ComposedChart,
+  RadialBarChart,
+  RadialBar,
 } from "recharts";
 
 const SCHOOL_NAMES = [
@@ -47,7 +50,7 @@ export default function ReportGeneration() {
   const [generating, setGenerating] = useState(false);
   const [selectedDept, setSelectedDept] = useState<string>("All Departments");
   
-  const [activeModal, setActiveModal] = useState<"bar" | "pie" | "line" | "area" | "radar" | null>(null);
+  const [activeModal, setActiveModal] = useState<"bar" | "pie" | "line" | "area" | "radar" | "composed" | "radial" | null>(null);
 
   // Data States
   const [registrations, setRegistrations] = useState<any[]>([]);
@@ -130,7 +133,7 @@ export default function ReportGeneration() {
     .slice(0, 5);
 
   // Modal Component
-  const ChartModal = ({ type, onClose }: { type: "bar" | "pie" | "line" | "area" | "radar"; onClose: () => void }) => {
+  const ChartModal = ({ type, onClose }: { type: "bar" | "pie" | "line" | "area" | "radar" | "composed" | "radial"; onClose: () => void }) => {
     const getChartTitle = () => {
       switch(type) {
         case "bar": return "Performance Overview (Full Detail)";
@@ -138,6 +141,8 @@ export default function ReportGeneration() {
         case "line": return "Registration Trends (Full Detail)";
         case "area": return "Volume Analysis (Full Detail)";
         case "radar": return "Metric Comparison (Full Detail)";
+        case "composed": return "Efficiency Analysis (Full Detail)";
+        case "radial": return "Engagement Levels (Full Detail)";
         default: return "Chart Detail";
       }
     };
@@ -198,7 +203,7 @@ export default function ReportGeneration() {
                     <Area type="monotone" dataKey="registrations" stackId="1" stroke="#8B5CF6" fill="#8B5CF6" fillOpacity={0.3} />
                     <Area type="monotone" dataKey="turnUp" stackId="1" stroke="#10B981" fill="#10B981" fillOpacity={0.3} />
                   </AreaChart>
-                ) : (
+                ) : type === "radar" ? (
                   <RadarChart cx="50%" cy="50%" outerRadius="80%" data={fullChartData}>
                     <PolarGrid stroke="rgba(255,255,255,0.1)" />
                     <PolarAngleAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10 }} />
@@ -208,6 +213,26 @@ export default function ReportGeneration() {
                     <Legend />
                     <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }} />
                   </RadarChart>
+                ) : type === "composed" ? (
+                  <ComposedChart data={fullChartData} margin={{ top: 20, right: 30, left: 20, bottom: 100 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={12} angle={-45} textAnchor="end" interval={0} height={100} />
+                    <YAxis stroke="rgba(255,255,255,0.5)" />
+                    <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }} itemStyle={{ color: '#fff' }} />
+                    <Legend verticalAlign="top" height={36}/>
+                    <Bar dataKey="registrations" barSize={20} fill="#8B5CF6" />
+                    <Line type="monotone" dataKey="turnUp" stroke="#ff7300" strokeWidth={3} />
+                  </ComposedChart>
+                ) : (
+                  <RadialBarChart cx="50%" cy="50%" innerRadius="10%" outerRadius="80%" barSize={10} data={fullChartData}>
+                    <RadialBar
+                      label={{ position: 'insideStart', fill: '#fff' }}
+                      background
+                      dataKey="score"
+                    />
+                    <Legend iconSize={10} layout="vertical" verticalAlign="middle" wrapperStyle={{ right: 0, top: 0, bottom: 0 }} />
+                    <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }} />
+                  </RadialBarChart>
                 )}
               </ResponsiveContainer>
             </div>
@@ -524,6 +549,46 @@ export default function ReportGeneration() {
               </ResponsiveContainer>
             </div>
           </div>
+
+          {/* Composed Chart Card */}
+          <div 
+            className="bg-white/5 rounded-2xl p-6 border border-white/10 cursor-pointer hover:border-cyan-500/50 transition-all group"
+            onClick={() => setActiveModal("composed")}
+          >
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2 group-hover:text-cyan-400 transition-colors">
+              <BarChart3 className="w-5 h-5" /> Efficiency
+            </h2>
+            <div className="h-[200px] pointer-events-none">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={summaryChartData}>
+                  <Bar dataKey="registrations" barSize={20} fill="#06B6D4" />
+                  <Line type="monotone" dataKey="turnUp" stroke="#ff7300" strokeWidth={2} dot={false} />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Radial Bar Chart Card */}
+          <div 
+            className="bg-white/5 rounded-2xl p-6 border border-white/10 cursor-pointer hover:border-yellow-500/50 transition-all group md:col-span-2 lg:col-span-3"
+            onClick={() => setActiveModal("radial")}
+          >
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2 group-hover:text-yellow-400 transition-colors">
+              <PieChartIcon className="w-5 h-5" /> Engagement
+            </h2>
+            <div className="h-[200px] pointer-events-none">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadialBarChart cx="50%" cy="50%" innerRadius="10%" outerRadius="80%" barSize={10} data={summaryChartData}>
+                  <RadialBar
+                    label={{ position: 'insideStart', fill: '#fff' }}
+                    background
+                    dataKey="score"
+                  />
+                  <Legend iconSize={10} layout="vertical" verticalAlign="middle" wrapperStyle={{ right: 0, top: 0, bottom: 0 }} />
+                </RadialBarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
 
         {/* Data Table */}
@@ -545,7 +610,7 @@ export default function ReportGeneration() {
               </thead>
               <tbody className="divide-y divide-white/5">
                 {fullChartData
-                  .sort((a, b) => b.score - a.score)
+                  .sort((a: any, b: any) => b.score - a.score)
                   .map((row: any, idx: number) => (
                   <tr key={idx} className="hover:bg-white/5 transition-colors">
                     <td className="px-6 py-4 font-bold text-yellow-400">
