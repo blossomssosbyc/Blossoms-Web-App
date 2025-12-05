@@ -8,17 +8,32 @@ import { useEffect } from 'react';
 export const useSmoothScroll = () => {
   useEffect(() => {
     let scrollVelocity = 0;
-    let currentScroll = 0;
+    // Initialize with current scroll position to prevent jumping to top on reload
+    let currentScroll = window.scrollY;
     let isScrolling = false;
     let scrollTimeout: NodeJS.Timeout;
     let animationFrameId: number | null = null;
+    let lastWheelTime = 0;
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       
-      // Reduce scroll speed by 50% for premium feel
-      // Lower value = slower, smoother scrolling
-      scrollVelocity = e.deltaY * 0.5;
+      const now = Date.now();
+      
+      // If we haven't scrolled in a while, sync with actual window position
+      // This handles cases where user scrolled via scrollbar or other methods
+      if (now - lastWheelTime > 100) {
+        currentScroll = window.scrollY;
+        scrollVelocity = 0;
+      }
+      lastWheelTime = now;
+      
+      // Add multiple calls within same frame to velocity instead of replacing
+      scrollVelocity += e.deltaY * 0.5;
+      
+      // Cap max velocity to prevent massive jumps
+      scrollVelocity = Math.max(Math.min(scrollVelocity, 150), -150);
+
       isScrolling = true;
 
       // Clear existing timeout
@@ -36,19 +51,28 @@ export const useSmoothScroll = () => {
     };
 
     const updateScroll = () => {
+      // Apply noise reduction
+      if (Math.abs(scrollVelocity) < 0.5) {
+        scrollVelocity = 0;
+        animationFrameId = null;
+        return;
+      }
+
       // Apply current velocity to scroll position
       currentScroll += scrollVelocity;
       
+      // Create boundaries
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      currentScroll = Math.max(0, Math.min(currentScroll, maxScroll));
+      
       // Dampen velocity for smooth deceleration
-      // Value closer to 1 = faster deceleration, less smooth
-      // Value closer to 0.9 = slower deceleration, smoother
       scrollVelocity *= 0.95;
 
       // Update actual scroll position
       window.scrollTo(0, currentScroll);
 
       // Continue animation while velocity is significant
-      if (Math.abs(scrollVelocity) > 0.1) {
+      if (Math.abs(scrollVelocity) > 0.5) {
         animationFrameId = requestAnimationFrame(updateScroll);
       } else {
         animationFrameId = null;
