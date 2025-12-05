@@ -29,7 +29,8 @@ export const useSmoothScroll = () => {
       lastWheelTime = now;
       
       // Add multiple calls within same frame to velocity instead of replacing
-      scrollVelocity += e.deltaY * 0.5;
+      // Reduced multiplier to 0.15 for even slower, smoother control
+      scrollVelocity += e.deltaY * 0.15;
       
       // Cap max velocity to prevent massive jumps
       scrollVelocity = Math.max(Math.min(scrollVelocity, 150), -150);
