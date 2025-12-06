@@ -148,14 +148,14 @@ This project is licensed under the [MIT License](LICENSE).
   <br />
   <br />
   <a href="https://github.com/Shashwat-19">
-    <img src="https://img.shields.io/badge/Shashwat--19-181717?style=for-the-badge&logo=github&logoColor=white" alt="Shashwat-19" />
+    <img src="https://github.com/Shashwat-19.png" width="32" height="32" style="border-radius: 50%; vertical-align: middle; margin-right: 8px;" alt="Shashwat-19" /><img src="https://img.shields.io/badge/Shashwat--19-181717?style=for-the-badge" style="vertical-align: middle;" alt="Shashwat-19 Badge" />
   </a>
-  &nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;
   <a href="https://github.com/vishnuu-s">
-    <img src="https://img.shields.io/badge/Vishnuu--s-181717?style=for-the-badge&logo=github&logoColor=white" alt="vishnuu-s" />
+    <img src="https://github.com/vishnuu-s.png" width="32" height="32" style="border-radius: 50%; vertical-align: middle; margin-right: 8px;" alt="vishnuu-s" /><img src="https://img.shields.io/badge/Vishnuu--s-181717?style=for-the-badge" style="vertical-align: middle;" alt="vishnuu-s Badge" />
   </a>
-  &nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;
   <a href="https://github.com/Shruthi-Chhabhaiya">
-    <img src="https://img.shields.io/badge/Shruthi--Chhabhaiya-181717?style=for-the-badge&logo=github&logoColor=white" alt="Shruthi-Chhabhaiya" />
+    <img src="https://github.com/Shruthi-Chhabhaiya.png" width="32" height="32" style="border-radius: 50%; vertical-align: middle; margin-right: 8px;" alt="Shruthi-Chhabhaiya" /><img src="https://img.shields.io/badge/Shruthi--Chhabhaiya-181717?style=for-the-badge" style="vertical-align: middle;" alt="Shruthi-Chhabhaiya Badge" />
   </a>
 </div>
