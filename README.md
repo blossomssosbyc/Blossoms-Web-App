@@ -1,201 +1,161 @@
 # Blossoms Web App
 
-**Blossoms Web App** is a comprehensive web platform designed to streamline the management of the Blossoms inter-school competition — handling event registrations, scheduling, results tracking, and administrative workflows.
+![Blossoms Banner](https://img.shields.io/badge/Blossoms-2025--26-purple?style=for-the-badge&logo=sparkles)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Node.js](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)](https://expressjs.com/)
+[![PostgreSQL](https://img.shields.io/badge/postgresql-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Drizzle](https://img.shields.io/badge/drizzle-C5F74F?style=for-the-badge&logo=drizzle&logoColor=black)](https://orm.drizzle.team/)
 
-## 🚀 Overview
-
-Blossoms Web App provides an all-in-one solution for organizing large-scale inter-school competitions. The platform features role-based access for administrators, organizers, and students, making event management efficient, transparent, and user-friendly.
-
-Built with a modern tech stack and modular architecture, the app aims to automate administrative tasks, reduce manual overhead, and improve the overall competition experience for all stakeholders.
+**Blossoms Web App** is the next-generation platform for managing the "Blossoms" inter-school competition. It combines a stunning neon aesthetic with powerful administrative tools to handle events, live scoring, reporting, and real-time visualization of results.
 
 ---
 
-## ✨ Key Features
+## ✨ Features
 
-- **🔐 User Authentication** — Secure login system with role-based access control
-- **📋 Event Management** — Create, edit, and manage competition events seamlessly
-- **📝 Registration System** — Simple and intuitive signup process for students and teams
-- **📅 Scheduling & Timetables** — Automated event scheduling to avoid conflicts
-- **🏆 Results Tracking** — Real-time results updates and dynamic leaderboards
-- **📱 Responsive Design** — Optimized experience across desktop, tablet, and mobile devices
-- **⚡ Modular Architecture** — Clean separation of concerns with client, server, and shared modules
+### 📅 Interactive Events Timeline
+
+- **Immersive Interface:** A beautiful, scroll-triggered timeline showcasing all events.
+- **Winner Announcements:** "View Results" integration allows instant access to event winners directly from the timeline card.
+- **Live Status:** Visual indicators for Upcoming, Ongoing, and Completed events.
+
+### 📊 Points Dashboard
+
+- **Live Calculations:** Real-time aggregation of scores from AWS/Database.
+- **Matrix Mode:** A cyberpunk-inspired "Matrix" view for raw data analysis.
+- **Dynamic Visuals:** Interactive charts and graphs powered by **Recharts**.
+- **Visual Loader:** A sleek, custom-built "Trophy" loader animation for data fetching states.
+
+### 📄 Administrative Tools
+
+- **Report Generation:** Automated tools to generate detailed event reports.
+- **Registration Management:** Streamlined workflow for tracking student and school registrations.
+
+### 🎨 UX & Engineering
+
+- **Smooth Scrolling:** Custom physics-based smooth scrolling hook (`useSmoothScroll`) for a premium "app-like" feel.
+- **Modern Animations:** Extensive use of **GSAP** and **Framer Motion** for revealing elements, modal transitions, and hover effects.
+- **Responsive Design:** Fully optimized for all screen sizes with a mobile-first approach.
 
 ---
 
 ## 📦 Tech Stack
 
-- **Frontend:** React, Vite, TypeScript, Tailwind CSS
+- **Frontend:** React, TypeScript, Vite, Tailwind CSS, Shadcn UI
 - **Backend:** Node.js, Express.js
-- **Database:** MongoDB / PostgreSQL (specify your choice)
-- **Authentication:** JWT / OAuth (specify your method)
-- **Deployment:** Vercel / Netlify / AWS (specify your platform)
+- **Database:** PostgreSQL (via Neon Serverless), Drizzle ORM
+- **State/Data:** TanStack Query
+- **Visualization:** Recharts, Lucide React
+- **Authentication:** Passport.js, Express Session
 
 ---
 
 ## 🛠️ Getting Started
 
+Follow these steps to set up the project locally.
+
 ### Prerequisites
 
-Before you begin, ensure you have the following installed:
-
-- **Node.js** (v18 or higher)
-- **npm** or **yarn**
+- **Node.js** (v18+)
+- **npm** (v9+)
 - **Git**
-- MongoDB / PostgreSQL (if running locally)
 
 ### Installation
 
-```bash
-# 1. Clone the repository
-git clone https://github.com/blossomssosbyc/Blossoms-Web-App.git
-cd Blossoms-Web-App
+1.  **Clone the repository**
 
-# 2. Install dependencies for the client
-cd client
-npm install
+    ```bash
+    git clone https://github.com/blossomssosbyc/Blossoms-Web-App.git
+    cd Blossoms-Web-App
+    ```
 
-# 3. Install dependencies for the server
-cd ../server
-npm install
+2.  **Install Dependencies**
+    Root directory handles both client and server dependencies.
 
-# 4. Set up environment variables
-# Create a .env file in both client and server directories
-# See .env.example for required variables
+    ```bash
+    npm install
+    ```
 
-# 5. Start the development servers
+3.  **Environment Configuration**
+    Create a `.env` file in the root directory.
 
-# Terminal 1 - Start the backend server
-cd server
-npm run dev
+    ```env
+    # Database
+    DATABASE_URL=postgres://user:password@host/dbname
 
-# Terminal 2 - Start the frontend client
-cd client
-npm run dev
-```
+    # Server
+    PORT=5000
+    SESSION_SECRET=your_super_secret_key
 
-### Environment Variables
+    # App
+    NODE_ENV=development
+    ```
 
-Create `.env` files in both `client/` and `server/` directories:
-
-**server/.env**
-
-```env
-PORT=3000
-DATABASE_URL=your_database_connection_string
-JWT_SECRET=your_jwt_secret
-NODE_ENV=development
-```
-
-**client/.env**
-
-```env
-VITE_API_URL=http://localhost:3000
-VITE_APP_NAME=Blossoms Web App
-```
-
----
-
-## 🎯 Usage
-
-1. Open your browser and navigate to `http://localhost:5173` (or the port displayed in your terminal)
-2. **Sign up** or **log in** with your credentials
-3. **Admins** can access the dashboard to create and manage events
-4. **Students** can browse available events and register for competitions
-5. View **schedules**, **results**, and **leaderboards** in real-time
+4.  **Run Development Server**
+    This command starts the backend server, which also serves the frontend.
+    ```bash
+    npm run dev
+    ```
+    The application will be available at `http://localhost:5000`.
 
 ---
 
 ## 📁 Project Structure
 
-```
+```bash
 Blossoms-Web-App/
 ├── client/              # Frontend React application
 │   ├── src/
-│   │   ├── components/  # Reusable UI components
-│   │   ├── pages/       # Page-level components
-│   │   ├── utils/       # Helper functions
-│   │   └── App.tsx      # Main app component
-│   └── package.json
-├── server/              # Backend Express API
-│   ├── src/
-│   │   ├── controllers/ # Route controllers
-│   │   ├── models/      # Database models
-│   │   ├── routes/      # API routes
-│   │   └── middleware/  # Custom middleware
-│   └── package.json
-├── shared/              # Shared types and utilities
-└── README.md
-```
-
----
-
-## 🧪 Running Tests
-
-```bash
-# Run frontend tests
-cd client
-npm test
-
-# Run backend tests
-cd server
-npm test
-```
-
----
-
-## 🚀 Deployment
-
-### Frontend (Vercel/Netlify)
-
-```bash
-cd client
-npm run build
-# Deploy the 'dist' folder to your hosting platform
-```
-
-### Backend (Heroku/Railway/AWS)
-
-```bash
-cd server
-# Follow your platform's deployment guide
-# Ensure environment variables are configured
+│   │   ├── components/  # Reusable UI components from Shadcn/Custom
+│   │   ├── hooks/       # Custom hooks (e.g., useSmoothScroll)
+│   │   ├── pages/       # Main pages (EventsTimeline, PointsCalculation, etc.)
+│   │   └── App.tsx      # Main entry point
+├── server/              # Backend Express application
+│   ├── routes.ts        # API Routes
+│   └── storage.ts       # Database storage interface
+├── shared/              # Shared Zod schemas and types
+├── drizzle.config.ts    # Drizzle ORM config
+├── package.json         # Root dependencies and scripts
+└── vite.config.ts       # Vite configuration
 ```
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! To contribute:
+We welcome contributions! Please follow these steps:
 
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1.  **Fork** the repository.
+2.  Create a feature branch: `git checkout -b feature/awesome-feature`
+3.  **Commit** your changes: `git commit -m 'Add awesome feature'`
+4.  **Push** to the branch: `git push origin feature/awesome-feature`
+5.  Open a **Pull Request**.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-## 📞 Contact & Support
-
-For questions, issues, or feedback:
-
-- Open an issue on [GitHub Issues](https://github.com/blossomssosbyc/Blossoms-Web-App/issues)
-- Reach out via email: *blossoms.byc@gmail.com*
-
----
-
-## 🙏 Acknowledgments
-
-- Built with ❤️ for the Blossoms Competition
-- Thanks to all contributors and supporters
-- Special thanks to the open-source community
-
----
-
-⭐ **If you find this project helpful, consider giving it a star!**
+<div align="center">
+  <sub>Built with ❤️ by the Blossoms Tech Team</sub>
+  <br />
+  <br />
+  <a href="https://github.com/Shashwat-19">
+    <img src="https://img.shields.io/badge/Shashwat--19-181717?style=for-the-badge&logo=github&logoColor=white" alt="Shashwat-19" />
+  </a>
+  &nbsp;
+  <a href="https://github.com/vishnuu-s">
+    <img src="https://img.shields.io/badge/Vishnuu--s-181717?style=for-the-badge&logo=github&logoColor=white" alt="vishnuu-s" />
+  </a>
+  &nbsp;
+  <a href="https://github.com/Shruthi-Chhabhaiya">
+    <img src="https://img.shields.io/badge/Shruthi--Chhabhaiya-181717?style=for-the-badge&logo=github&logoColor=white" alt="Shruthi-Chhabhaiya" />
+  </a>
+</div>
