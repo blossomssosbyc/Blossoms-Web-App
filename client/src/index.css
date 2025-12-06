@@ -4,11 +4,11 @@
 
 /* DARK MODE - NEON OCEAN THEME */
 :root {
-  --button-outline: rgba(255, 255, 255, .08);
-  --badge-outline: rgba(255, 255, 255, .04);
+  --button-outline: rgba(255, 255, 255, 0.08);
+  --badge-outline: rgba(255, 255, 255, 0.04);
   --opaque-button-border-intensity: 9;
-  --elevate-1: rgba(7, 251, 248, .06);
-  --elevate-2: rgba(7, 251, 248, .12);
+  --elevate-1: rgba(7, 251, 248, 0.06);
+  --elevate-2: rgba(7, 251, 248, 0.12);
 
   /* Deep space black with subtle blue tint */
   --background: 220 20% 8%;
@@ -70,20 +70,23 @@
   --chart-4: 260 85% 60%;
   --chart-5: 190 90% 45%;
 
-  --font-sans: 'Raleway', sans-serif;
+  --font-sans: "Raleway", sans-serif;
   --font-serif: Georgia, serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-mono: "JetBrains Mono", monospace;
   --radius: 0.5rem;
-  ;
-
   /* Shadows with blue glow */
   --shadow-2xs: 0px 2px 0px 0px hsl(215 100% 50% / 0.1);
   --shadow-xs: 0px 2px 0px 0px hsl(215 100% 50% / 0.15);
-  --shadow-sm: 0px 2px 0px 0px hsl(215 100% 50% / 0.2), 0px 1px 2px -1px hsl(179 98% 50% / 0.15);
-  --shadow: 0px 2px 0px 0px hsl(215 100% 50% / 0.2), 0px 1px 2px -1px hsl(179 98% 50% / 0.2);
-  --shadow-md: 0px 2px 0px 0px hsl(215 100% 50% / 0.25), 0px 2px 4px -1px hsl(179 98% 50% / 0.2);
-  --shadow-lg: 0px 2px 0px 0px hsl(215 100% 50% / 0.3), 0px 4px 6px -1px hsl(179 98% 50% / 0.25);
-  --shadow-xl: 0px 2px 0px 0px hsl(215 100% 50% / 0.35), 0px 8px 10px -1px hsl(179 98% 50% / 0.3);
+  --shadow-sm: 0px 2px 0px 0px hsl(215 100% 50% / 0.2),
+    0px 1px 2px -1px hsl(179 98% 50% / 0.15);
+  --shadow: 0px 2px 0px 0px hsl(215 100% 50% / 0.2),
+    0px 1px 2px -1px hsl(179 98% 50% / 0.2);
+  --shadow-md: 0px 2px 0px 0px hsl(215 100% 50% / 0.25),
+    0px 2px 4px -1px hsl(179 98% 50% / 0.2);
+  --shadow-lg: 0px 2px 0px 0px hsl(215 100% 50% / 0.3),
+    0px 4px 6px -1px hsl(179 98% 50% / 0.25);
+  --shadow-xl: 0px 2px 0px 0px hsl(215 100% 50% / 0.35),
+    0px 8px 10px -1px hsl(179 98% 50% / 0.3);
   --shadow-2xl: 0px 2px 0px 0px hsl(215 100% 50% / 0.4);
 
   --tracking-normal: 0em;
@@ -91,31 +94,52 @@
 
   /* Fallback for older browsers */
   --sidebar-primary-border: hsl(var(--sidebar-primary));
-  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-primary-border: hsl(
+    from hsl(var(--sidebar-primary)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
 
   /* Fallback for older browsers */
   --sidebar-accent-border: hsl(var(--sidebar-accent));
-  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-accent-border: hsl(
+    from hsl(var(--sidebar-accent)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
 
   /* Fallback for older browsers */
   --primary-border: hsl(var(--primary));
-  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --primary-border: hsl(
+    from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) /
+      alpha
+  );
 
   /* Fallback for older browsers */
   --secondary-border: hsl(var(--secondary));
-  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --secondary-border: hsl(
+    from hsl(var(--secondary)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
 
   /* Fallback for older browsers */
   --muted-border: hsl(var(--muted));
-  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --muted-border: hsl(
+    from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) /
+      alpha
+  );
 
   /* Fallback for older browsers */
   --accent-border: hsl(var(--accent));
-  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --accent-border: hsl(
+    from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) /
+      alpha
+  );
 
   /* Fallback for older browsers */
   --destructive-border: hsl(var(--destructive));
-  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --destructive-border: hsl(
+    from hsl(var(--destructive)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
 }
 
 @layer base {
@@ -149,7 +173,6 @@
  * need to be distinguished from eachother visually.
  */
 @layer utilities {
-
   /* Hide ugly search cancel button in Chrome until we can style it properly */
   input[type="search"]::-webkit-search-cancel-button {
     @apply hidden;
@@ -165,10 +188,11 @@
   /* .no-default-hover-elevate/no-default-active-elevate is an escape hatch so consumers of
    * buttons/badges can remove the automatic brightness adjustment on interactions
    * and program their own. */
-  .no-default-hover-elevate {}
+  .no-default-hover-elevate {
+  }
 
-  .no-default-active-elevate {}
-
+  .no-default-active-elevate {
+  }
 
   /**
    * Toggleable backgrounds go behind the content. Hoverable/active goes on top.
@@ -258,7 +282,6 @@
 }
 
 @layer utilities {
-
   /* Smooth card hover transition */
   .card-hover-transition {
     transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
@@ -281,4 +304,39 @@
 .no-hover-outline:active::after {
   display: none !important;
   background: transparent !important;
+}
+
+@keyframes scan {
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.5;
+  }
+  90% {
+    opacity: 0.5;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+.animate-scan {
+  animation: scan 3s linear infinite;
+}
+
+@keyframes bounce-slow {
+  0%,
+  100% {
+    transform: translateY(-5%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+.animate-bounce-slow {
+  animation: bounce-slow 2s infinite;
 }
