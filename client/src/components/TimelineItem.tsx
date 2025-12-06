@@ -101,6 +101,16 @@ export default function TimelineItem({
             {location}
           </span>
         </div>
+
+        {/* View Winners Button */}
+        {status === "completed" && (
+          <div className="mt-4 pt-4 border-t border-white/10 flex justify-end">
+            <button className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-300 hover:text-purple-200 transition-colors">
+              <Trophy className="w-3 h-3" />
+              View Results
+            </button>
+          </div>
+        )}
       </Card>
 
       <div className="flex flex-col items-center" style={{ zIndex: 5 }}>

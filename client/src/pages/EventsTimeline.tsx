@@ -307,6 +307,14 @@ export default function EventsTimeline() {
   const headerRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [selectedEvent, setSelectedEvent] = useState<typeof events[0] | null>(null);
+  const [winners, setWinners] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/winners")
+      .then((res) => res.json())
+      .then((data) => setWinners(data))
+      .catch((err) => console.error("Error fetching winners:", err));
+  }, []);
 
   useEffect(() => {
     const now = new Date();
@@ -532,6 +540,58 @@ export default function EventsTimeline() {
                       * Schedule subject to change
                     </div>
                   </div>
+
+                  {/* Winners Section */}
+                  {winners.filter((w) => w.event === selectedEvent.title).length > 0 && (
+                    <div className="mt-8 pt-8 border-t border-white/10 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 rounded-lg bg-yellow-500/20 border border-yellow-500/30">
+                          <Trophy className="w-6 h-6 text-yellow-400" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-white">Winners</h3>
+                      </div>
+                      
+                      <div className="grid gap-3">
+                        {winners
+                          .filter((w) => w.event === selectedEvent.title)
+                          .map((winner, idx) => (
+                            <div 
+                              key={idx}
+                              className={`flex items-center justify-between p-4 rounded-xl border backdrop-blur-md transition-all ${
+                                winner.position === "1st" 
+                                  ? "bg-gradient-to-r from-yellow-500/10 to-transparent border-yellow-500/20" 
+                                  : winner.position === "2nd"
+                                  ? "bg-white/5 border-white/10"
+                                  : "bg-white/5 border-white/5"
+                              }`}
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                                  winner.position === "1st" 
+                                    ? "bg-yellow-500 text-black shadow-lg shadow-yellow-500/20"
+                                    : winner.position === "2nd"
+                                    ? "bg-gray-300 text-black"
+                                    : "bg-orange-700 text-white"
+                                }`}>
+                                  {winner.position === "1st" ? "1" : winner.position === "2nd" ? "2" : "3"}
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-white">{winner.team}</p>
+                                  <p className="text-xs text-white/60">{winner.school}</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <span className={`text-xs font-bold px-2 py-1 rounded bg-white/10 ${
+                                  winner.position === "1st" ? "text-yellow-200" : "text-white/70"
+                                }`}>
+                                  {winner.position}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>
