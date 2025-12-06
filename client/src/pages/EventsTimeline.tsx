@@ -373,6 +373,18 @@ export default function EventsTimeline() {
     return () => ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
   }, []);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (selectedEvent) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [selectedEvent]);
+
   return (
     <div
       className="min-h-screen bg-black text-white overflow-hidden"
@@ -455,7 +467,7 @@ export default function EventsTimeline() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative w-full max-w-4xl bg-black border border-purple-500/30 rounded-2xl overflow-hidden shadow-2xl shadow-purple-900/20"
+              className="relative w-full max-w-4xl bg-black border border-purple-500/30 rounded-2xl overflow-hidden shadow-2xl shadow-purple-900/20 flex flex-col max-h-[90vh]"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Starry Background Effect */}
@@ -480,10 +492,10 @@ export default function EventsTimeline() {
               </div>
 
               {/* Content */}
-              <div className="relative z-10 p-8 md:p-12">
+              <div className="relative z-10 p-8 md:p-12 overflow-y-auto custom-scrollbar">
                 <button
                   onClick={() => setSelectedEvent(null)}
-                  className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                  className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors z-20"
                 >
                   <X className="w-6 h-6" />
                 </button>
