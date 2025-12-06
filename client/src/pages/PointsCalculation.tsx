@@ -165,72 +165,17 @@ function SchoolSelector({
 // ---------- Analysis Loader ----------
 
 function AnalysisLoader() {
-  const [step, setStep] = useState(0);
-  const steps = [
-    "Initializing secure connection to AWS...",
-    "Verifying security protocols...",
-    "Retrieving latest event data...",
-    "Aggregating school scores...",
-    "Calculating live rankings...",
-    "Finalizing visual analytics..."
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setStep((s) => (s < steps.length - 1 ? s + 1 : s));
-    }, 800);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white font-mono p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-4 relative overflow-hidden">
         {/* Ambient background effects */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-black to-black" />
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-50 animate-scan" />
-
-        <div className="z-10 flex flex-col items-center max-w-md w-full">
-            <div className="relative mb-8">
-                <div className="absolute inset-0 bg-purple-500 blur-xl opacity-20 animate-pulse" />
-                <Activity className="w-16 h-16 text-purple-400 animate-bounce-slow" />
+        
+        <div className="z-10 relative">
+            <div className="absolute inset-0 bg-purple-500 blur-2xl opacity-20 animate-pulse" />
+            <div className="w-24 h-24 rounded-full border-2 border-white/10 flex items-center justify-center bg-white/5 backdrop-blur-sm relative">
+                <div className="absolute inset-0 border-t-2 border-purple-500 rounded-full animate-spin" />
+                <Trophy className="w-10 h-10 text-purple-300 animate-pulse" />
             </div>
-
-            <div className="w-full bg-white/5 rounded-lg border border-white/10 p-4 backdrop-blur-sm min-h-[120px] flex flex-col justify-between">
-                <div className="space-y-2">
-                    {steps.map((text, idx) => (
-                        <div 
-                            key={idx} 
-                            className={`flex items-center gap-3 text-sm transition-all duration-300 ${
-                                idx === step 
-                                    ? "text-purple-300 opacity-100 translate-x-1" 
-                                    : idx < step 
-                                        ? "text-green-400/50 opacity-50" 
-                                        : "text-white/10 opacity-0 hidden"
-                            }`}
-                        >
-                            {idx < step ? (
-                                <span className="text-green-500">✓</span>
-                            ) : idx === step ? (
-                                <span className="animate-spin text-purple-400">⟳</span>
-                            ) : (
-                                <span className="w-3" />
-                            )}
-                            {text}
-                        </div>
-                    ))}
-                </div>
-                
-                {/* Progress bar */}
-                <div className="w-full bg-white/10 h-1 rounded-full mt-4 overflow-hidden">
-                    <div 
-                        className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-500 ease-out"
-                        style={{ width: `${((step + 1) / steps.length) * 100}%` }}
-                    />
-                </div>
-            </div>
-            
-            <p className="mt-4 text-xs text-white/30 uppercase tracking-[0.2em] animate-pulse">
-                System Processing
-            </p>
         </div>
     </div>
   );
