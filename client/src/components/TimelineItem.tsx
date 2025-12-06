@@ -20,6 +20,7 @@ type TimelineItemProps = {
   status: "completed" | "ongoing" | "upcoming";
   position: "left" | "right";
   highlighted?: boolean;
+  hasWinners?: boolean;
 };
 
 export default function TimelineItem({
@@ -32,6 +33,7 @@ export default function TimelineItem({
   position,
   highlighted = false,
   onClick,
+  hasWinners = false,
 }: TimelineItemProps & { onClick?: () => void }) {
   const statusConfig = {
     completed: { icon: CheckCircle2, label: "Completed" },
@@ -102,8 +104,8 @@ export default function TimelineItem({
           </span>
         </div>
 
-        {/* View Winners Button */}
-        {status === "completed" && (
+        {/* View Winners Button - Show if completed OR has winners data */}
+        {(status === "completed" || hasWinners) && (
           <div className="mt-4 pt-4 border-t border-white/10 flex justify-end">
             <button className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-300 hover:text-purple-200 transition-colors">
               <Trophy className="w-3 h-3" />

@@ -432,6 +432,7 @@ export default function EventsTimeline() {
                   position={event.position as "left" | "right"}
                   highlighted={hoveredIndex === index}
                   onClick={() => setSelectedEvent(event)}
+                  hasWinners={winners.some((w) => w.event.toLowerCase() === event.title.toLowerCase())}
                 />
               </div>
             ))}
@@ -542,7 +543,7 @@ export default function EventsTimeline() {
                   </div>
 
                   {/* Winners Section */}
-                  {winners.filter((w) => w.event === selectedEvent.title).length > 0 && (
+                  {winners.filter((w) => w.event.toLowerCase() === selectedEvent.title.toLowerCase()).length > 0 && (
                     <div className="mt-8 pt-8 border-t border-white/10 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
                       <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 rounded-lg bg-yellow-500/20 border border-yellow-500/30">
@@ -553,27 +554,32 @@ export default function EventsTimeline() {
                       
                       <div className="grid gap-3">
                         {winners
-                          .filter((w) => w.event === selectedEvent.title)
-                          .map((winner, idx) => (
+                          .filter((w) => w.event.toLowerCase() === selectedEvent.title.toLowerCase())
+                          .map((winner, idx) => {
+                             const pos = winner.position.toUpperCase();
+                             const isFirst = pos === "FIRST" || pos === "1ST";
+                             const isSecond = pos === "SECOND" || pos === "2ND";
+                             
+                             return (
                             <div 
                               key={idx}
                               className={`flex items-center justify-between p-4 rounded-xl border backdrop-blur-md transition-all ${
-                                winner.position === "1st" 
+                                isFirst
                                   ? "bg-gradient-to-r from-yellow-500/10 to-transparent border-yellow-500/20" 
-                                  : winner.position === "2nd"
+                                  : isSecond
                                   ? "bg-white/5 border-white/10"
                                   : "bg-white/5 border-white/5"
                               }`}
                             >
                               <div className="flex items-center gap-4">
                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                                  winner.position === "1st" 
+                                  isFirst 
                                     ? "bg-yellow-500 text-black shadow-lg shadow-yellow-500/20"
-                                    : winner.position === "2nd"
+                                    : isSecond
                                     ? "bg-gray-300 text-black"
                                     : "bg-orange-700 text-white"
                                 }`}>
-                                  {winner.position === "1st" ? "1" : winner.position === "2nd" ? "2" : "3"}
+                                  {isFirst ? "1" : isSecond ? "2" : "3"}
                                 </div>
                                 <div>
                                   <p className="font-semibold text-white">{winner.team}</p>
@@ -582,13 +588,14 @@ export default function EventsTimeline() {
                               </div>
                               <div className="text-right">
                                 <span className={`text-xs font-bold px-2 py-1 rounded bg-white/10 ${
-                                  winner.position === "1st" ? "text-yellow-200" : "text-white/70"
+                                  isFirst ? "text-yellow-200" : "text-white/70"
                                 }`}>
                                   {winner.position}
                                 </span>
                               </div>
                             </div>
-                          ))}
+                           );
+                          })}
                       </div>
                     </div>
                   )}
