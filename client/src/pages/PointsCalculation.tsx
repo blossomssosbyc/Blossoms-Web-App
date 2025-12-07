@@ -35,7 +35,7 @@ import {
   Line,
 } from "recharts";
 import MagicBento, { ParticleCard } from "@/components/MagicBento";
-import useSmoothScroll from "@/hooks/useSmoothScroll";
+
 import AIQuery from "@/components/AIQuery";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -225,7 +225,7 @@ export default function PointsCalculation() {
   );
 
   const heroRef = useRef<HTMLDivElement>(null);
-  useSmoothScroll();
+
 
   // fetch everything including POINTS_TABLE
   useEffect(() => {
@@ -397,7 +397,7 @@ export default function PointsCalculation() {
   // ---------- layout with full‑page gradient background ----------
 
   return (
-    <div className="min-h-screen text-white overflow-hidden relative">
+    <div className="min-h-screen text-white relative">
       {/* full-page gradient background */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#2b0640] via-[#050012] to-[#041a3a]" />
       <div className="fixed inset-0 -z-10 opacity-60">
