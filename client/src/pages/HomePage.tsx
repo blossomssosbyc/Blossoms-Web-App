@@ -463,7 +463,11 @@ function getTodaysUpcomingEvents(events: EventData[]): EventData[] {
 // ============================================
 
 export default function HomePage() {
-  const upcomingToday = useMemo(() => getTodaysUpcomingEvents(allEvents), []);
+  console.log("HomePage: Rendering started");
+  const upcomingToday = useMemo(() => {
+    console.log("HomePage: Calculating upcoming events");
+    return getTodaysUpcomingEvents(allEvents);
+  }, []);
   const heroRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
 
@@ -479,9 +483,12 @@ export default function HomePage() {
 
   useEffect(() => {
     const fetchStats = async () => {
+      console.log("HomePage: Fetching stats...");
       try {
         const res = await fetch("/api/registrations");
+        console.log("HomePage: Stats response status:", res.status);
         const data = await res.json();
+        console.log("HomePage: Stats data received:", data);
 
         if (Array.isArray(data)) {
           const totalParticipants = data.reduce(
