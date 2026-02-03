@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { X, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { gsap } from "gsap";
@@ -11,173 +11,49 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Masonry from "@/components/Masonry";
 import useSmoothScroll from "@/hooks/useSmoothScroll";
+import { galleryService, GalleryImage } from "@/services/galleryService";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const galleryImages = [
-  {
-    id: "1",
-    img: "https://drive.google.com/uc?export=view&id=FILE_ID_1",
-    url: "https://drive.google.com/uc?export=view&id=FILE_ID_1",
-    title: "Greeting Card Contest Winner",
-    event: "Greeting Card Making",
-    date: "March 11, 2024",
-    height: 400,
-  },
-  {
-    id: "2",
-    img: "https://drive.google.com/uc?export=view&id=FILE_ID_2",
-    url: "https://drive.google.com/uc?export=view&id=FILE_ID_2",
-    title: "Extempore Speech Competition",
-    event: "Extempore",
-    date: "March 12, 2024",
-    height: 350,
-  },
-  {
-    id: "3",
-    img: "https://drive.google.com/uc?export=view&id=FILE_ID_3",
-    url: "https://drive.google.com/uc?export=view&id=FILE_ID_3",
-    title: "Photography Exhibition",
-    event: "Photography",
-    date: "March 13, 2024",
-    height: 450,
-  },
-  {
-    id: "4",
-    img: "https://drive.google.com/uc?export=view&id=FILE_ID_4",
-    url: "https://drive.google.com/uc?export=view&id=FILE_ID_4",
-    title: "Debate Preliminaries",
-    event: "Debate (Prelims)",
-    date: "March 14, 2024",
-    height: 380,
-  },
-  {
-    id: "5",
-    img: "https://drive.google.com/uc?export=view&id=FILE_ID_5",
-    url: "https://drive.google.com/uc?export=view&id=FILE_ID_5",
-    title: "Short Film Screening",
-    event: "Short Film Making",
-    date: "March 15, 2024",
-    height: 500,
-  },
-  {
-    id: "6",
-    img: "https://drive.google.com/uc?export=view&id=FILE_ID_6",
-    url: "https://drive.google.com/uc?export=view&id=FILE_ID_6",
-    title: "Pencil Sketching Workshop",
-    event: "Pencil Sketching",
-    date: "March 11, 2024",
-    height: 420,
-  },
-  {
-    id: "7",
-    img: "https://drive.google.com/uc?export=view&id=FILE_ID_7",
-    url: "https://drive.google.com/uc?export=view&id=FILE_ID_7",
-    title: "Dance Extravaganza Finals",
-    event: "Dance Extravaganza",
-    date: "March 12, 2024",
-    height: 480,
-  },
-  {
-    id: "8",
-    img: "https://drive.google.com/uc?export=view&id=FILE_ID_8",
-    url: "https://drive.google.com/uc?export=view&id=FILE_ID_8",
-    title: "Western Singing Solo Performance",
-    event: "Western Singing (Solo)",
-    date: "March 13, 2024",
-    height: 390,
-  },
-  {
-    id: "9",
-    img: "https://drive.google.com/uc?export=view&id=FILE_ID_9",
-    url: "https://drive.google.com/uc?export=view&id=FILE_ID_9",
-    title: "Battle of Bands - Western",
-    event: "Battle of Bands (Western)",
-    date: "March 16, 2024",
-    height: 440,
-  },
-  {
-    id: "10",
-    img: "https://drive.google.com/uc?export=view&id=FILE_ID_10",
-    url: "https://drive.google.com/uc?export=view&id=FILE_ID_10",
-    title: "Rangoli Design Competition",
-    event: "Rangoli Design",
-    date: "March 17, 2024",
-    height: 360,
-  },
-  {
-    id: "11",
-    img: "https://drive.google.com/uc?export=view&id=FILE_ID_11",
-    url: "https://drive.google.com/uc?export=view&id=FILE_ID_11",
-    title: "Quiz Finals",
-    event: "Quiz (Finals)",
-    date: "March 18, 2024",
-    height: 410,
-  },
-  {
-    id: "12",
-    img: "https://drive.google.com/uc?export=view&id=FILE_ID_12",
-    url: "https://drive.google.com/uc?export=view&id=FILE_ID_12",
-    title: "Street Theatre Performance",
-    event: "Street Theatre",
-    date: "March 19, 2024",
-    height: 470,
-  },
-];
-
-const events = [
-  "All Events",
-  "Greeting Card Making",
-  "Extempore",
-  "Photography",
-  "Debate (Prelims)",
-  "Short Film Making",
-  "Pencil Sketching",
-  "Air Crash",
-  "Western Singing (Solo)",
-  "Rangoli Design",
-  "Dumb Charade",
-  "Mono Acting",
-  "Painting",
-  "Pot Pourri",
-  "Indian Folk & Film Singing (Solo)",
-  "Indian Classical Dance (Group)",
-  "Collage Making",
-  "Debate (Finals)",
-  "Indian Duet",
-  "Pot Art",
-  "Quiz (Prelims)",
-  "Mime",
-  "Mehandi Design",
-  "Creative Writing",
-  "Acoustic Music Group (Western)",
-  "Street Theatre",
-  "Digital Poster Making",
-  "Just a Minute (JAM)",
-  "Indian Dance Group (Non Theme - Film/Folk)",
-  "Reel Making",
-  "Quiz (Finals)",
-  "Dance Extravaganza",
-  "Battle of Bands (Western)",
-  "Battle of Bands (Indian)",
-  "Proscenium",
-];
-
-// First 5 events to show as buttons (including "All Events")
-const featuredEvents = events.slice(0, 5);
-// Remaining events for dropdown
-const dropdownEvents = events.slice(5);
-
 export default function Gallery() {
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState("All Events");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const filteredImages = galleryImages.filter((img) => {
-    const eventMatch =
-      selectedEvent === "All Events" || img.event === selectedEvent;
-    return eventMatch;
-  });
+  // Fetch images from Supabase
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const data = await galleryService.getImages();
+        setImages(data);
+      } catch (error) {
+        console.error("Failed to fetch gallery images:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchImages();
+  }, []);
+
+  // Extract events dynamically from fetched images
+  const events = useMemo(() => {
+    const uniqueEvents = Array.from(new Set(images.map(img => img.event))).filter(Boolean).sort();
+    return ["All Events", ...uniqueEvents];
+  }, [images]);
+
+  const featuredEvents = events.slice(0, 5);
+  const dropdownEvents = events.slice(5);
+
+  const filteredImages = useMemo(() => {
+    return images.filter((img) => {
+      const eventMatch =
+        selectedEvent === "All Events" || img.event === selectedEvent;
+      return eventMatch;
+    });
+  }, [images, selectedEvent]);
 
   const openLightbox = (index: number) => {
     setCurrentImageIndex(index);
@@ -212,7 +88,7 @@ export default function Gallery() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [lightboxOpen, nextImage, prevImage]);
+  }, [lightboxOpen, nextImage, prevImage]); // Added deps to fix stale state closure if needed, though state updaters handle it.
 
   // Scroll reveal animations for gallery sections
   useEffect(() => {
@@ -246,7 +122,7 @@ export default function Gallery() {
     return () => {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
-  }, []);
+  }, [loading]); // Re-run animation setup when loading finishes and content renders
 
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden">
@@ -273,46 +149,44 @@ export default function Gallery() {
               variant={selectedEvent === event ? "default" : "outline"}
               onClick={() => setSelectedEvent(event)}
               className="transition-all hover:scale-105"
-              data-testid={`button-event-${event
-                .toLowerCase()
-                .replace(/\s+/g, "-")}`}
             >
               {event}
             </Button>
           ))}
 
           {/* More Events Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant={
-                  dropdownEvents.includes(selectedEvent) ? "default" : "outline"
-                }
-                className="min-w-[150px] justify-between"
-              >
-                {dropdownEvents.includes(selectedEvent)
-                  ? selectedEvent
-                  : "More Events"}
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-[280px] max-h-[400px] overflow-y-auto bg-gray-900 border-white/10"
-            >
-              {dropdownEvents.map((event) => (
-                <DropdownMenuItem
-                  key={event}
-                  onClick={() => setSelectedEvent(event)}
-                  className={`${
-                    selectedEvent === event ? "bg-purple-600/40" : ""
-                  } text-white hover:bg-purple-600/30 cursor-pointer`}
+          {dropdownEvents.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant={
+                    dropdownEvents.includes(selectedEvent) ? "default" : "outline"
+                  }
+                  className="min-w-[150px] justify-between"
                 >
-                  {event}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  {dropdownEvents.includes(selectedEvent)
+                    ? selectedEvent
+                    : "More Events"}
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-[280px] max-h-[400px] overflow-y-auto bg-gray-900 border-white/10"
+              >
+                {dropdownEvents.map((event) => (
+                  <DropdownMenuItem
+                    key={event}
+                    onClick={() => setSelectedEvent(event)}
+                    className={`${selectedEvent === event ? "bg-purple-600/40" : ""
+                      } text-white hover:bg-purple-600/30 cursor-pointer`}
+                  >
+                    {event}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         {/* Images Count */}
@@ -330,13 +204,15 @@ export default function Gallery() {
 
           {/* Gallery Masonry */}
           <div className="relative z-10">
-            {filteredImages.length > 0 ? (
+            {loading ? (
+              <div className="text-center py-24 text-white/60">Loading Moments...</div>
+            ) : filteredImages.length > 0 ? (
               <Masonry
                 items={filteredImages.map((img) => ({
-                  id: img.id,
-                  img: img.img,
-                  url: img.url,
-                  height: img.height,
+                  id: img.id.toString(), // Ensure ID is string if Masonry expects it
+                  img: img.img!,
+                  url: img.url!,
+                  height: img.height!,
                 }))}
                 ease="power3.out"
                 duration={0.6}
@@ -348,7 +224,7 @@ export default function Gallery() {
                 colorShiftOnHover={false}
                 onItemClick={(id) => {
                   const index = filteredImages.findIndex(
-                    (img) => img.id === id
+                    (img) => img.id.toString() === id
                   );
                   if (index !== -1) {
                     openLightbox(index);
@@ -369,7 +245,7 @@ export default function Gallery() {
         </section>
 
         {/* Lightbox */}
-        {lightboxOpen && (
+        {lightboxOpen && filteredImages[currentImageIndex] && (
           <div className="fixed inset-0 z-50 bg-black/98 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
             {/* Close Button */}
             <Button
@@ -377,7 +253,6 @@ export default function Gallery() {
               size="icon"
               className="absolute top-6 right-6 text-white hover:bg-white/10 z-10 rounded-full"
               onClick={closeLightbox}
-              data-testid="button-close-lightbox"
             >
               <X className="w-6 h-6" />
             </Button>
@@ -388,7 +263,6 @@ export default function Gallery() {
               size="icon"
               className="absolute left-6 text-white hover:bg-white/10 z-10 hidden md:flex rounded-full"
               onClick={prevImage}
-              data-testid="button-prev-image"
             >
               <ChevronLeft className="w-8 h-8" />
             </Button>
@@ -399,7 +273,6 @@ export default function Gallery() {
               size="icon"
               className="absolute right-6 text-white hover:bg-white/10 z-10 hidden md:flex rounded-full"
               onClick={nextImage}
-              data-testid="button-next-image"
             >
               <ChevronRight className="w-8 h-8" />
             </Button>

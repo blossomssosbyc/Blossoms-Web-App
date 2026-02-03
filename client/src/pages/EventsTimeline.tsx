@@ -311,9 +311,24 @@ export default function EventsTimeline() {
 
   useEffect(() => {
     fetch("/api/winners")
-      .then((res) => res.json())
-      .then((data) => setWinners(data))
-      .catch((err) => console.error("Error fetching winners:", err));
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setWinners(data);
+        } else {
+          console.error("Expected array for winners, got:", data);
+          setWinners([]);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching winners:", err);
+        setWinners([]);
+      });
   }, []);
 
   useEffect(() => {
@@ -444,7 +459,7 @@ export default function EventsTimeline() {
                   position={event.position as "left" | "right"}
                   highlighted={hoveredIndex === index}
                   onClick={() => setSelectedEvent(event)}
-                  hasWinners={winners.some((w) => w.event.toLowerCase() === event.title.toLowerCase())}
+                  hasWinners={Array.isArray(winners) && winners.some((w) => w.event.toLowerCase() === event.title.toLowerCase())}
                 />
               </div>
             ))}
@@ -526,7 +541,7 @@ export default function EventsTimeline() {
                       </div>
                       <p className="text-white text-lg">{selectedEvent.location}</p>
                     </div>
-                    
+
                     <div className="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
                       <div className="flex items-center gap-3 mb-2 text-blue-300">
                         <Clock className="w-5 h-5" />
@@ -563,50 +578,47 @@ export default function EventsTimeline() {
                         </div>
                         <h3 className="text-2xl font-bold text-white">Winners</h3>
                       </div>
-                      
+
                       <div className="grid gap-3">
                         {winners
                           .filter((w) => w.event.toLowerCase() === selectedEvent.title.toLowerCase())
                           .map((winner, idx) => {
-                             const pos = winner.position.toUpperCase();
-                             const isFirst = pos === "FIRST" || pos === "1ST";
-                             const isSecond = pos === "SECOND" || pos === "2ND";
-                             
-                             return (
-                            <div 
-                              key={idx}
-                              className={`flex items-center justify-between p-4 rounded-xl border backdrop-blur-md transition-all ${
-                                isFirst
-                                  ? "bg-gradient-to-r from-yellow-500/10 to-transparent border-yellow-500/20" 
-                                  : isSecond
-                                  ? "bg-white/5 border-white/10"
-                                  : "bg-white/5 border-white/5"
-                              }`}
-                            >
-                              <div className="flex items-center gap-4">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                                  isFirst 
-                                    ? "bg-yellow-500 text-black shadow-lg shadow-yellow-500/20"
+                            const pos = winner.position.toUpperCase();
+                            const isFirst = pos === "FIRST" || pos === "1ST";
+                            const isSecond = pos === "SECOND" || pos === "2ND";
+
+                            return (
+                              <div
+                                key={idx}
+                                className={`flex items-center justify-between p-4 rounded-xl border backdrop-blur-md transition-all ${isFirst
+                                    ? "bg-gradient-to-r from-yellow-500/10 to-transparent border-yellow-500/20"
                                     : isSecond
-                                    ? "bg-gray-300 text-black"
-                                    : "bg-orange-700 text-white"
-                                }`}>
-                                  {isFirst ? "1" : isSecond ? "2" : "3"}
+                                      ? "bg-white/5 border-white/10"
+                                      : "bg-white/5 border-white/5"
+                                  }`}
+                              >
+                                <div className="flex items-center gap-4">
+                                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${isFirst
+                                      ? "bg-yellow-500 text-black shadow-lg shadow-yellow-500/20"
+                                      : isSecond
+                                        ? "bg-gray-300 text-black"
+                                        : "bg-orange-700 text-white"
+                                    }`}>
+                                    {isFirst ? "1" : isSecond ? "2" : "3"}
+                                  </div>
+                                  <div>
+                                    <p className="font-semibold text-white">{winner.team}</p>
+                                    <p className="text-xs text-white/60">{winner.school}</p>
+                                  </div>
                                 </div>
-                                <div>
-                                  <p className="font-semibold text-white">{winner.team}</p>
-                                  <p className="text-xs text-white/60">{winner.school}</p>
+                                <div className="text-right">
+                                  <span className={`text-xs font-bold px-2 py-1 rounded bg-white/10 ${isFirst ? "text-yellow-200" : "text-white/70"
+                                    }`}>
+                                    {winner.position}
+                                  </span>
                                 </div>
                               </div>
-                              <div className="text-right">
-                                <span className={`text-xs font-bold px-2 py-1 rounded bg-white/10 ${
-                                  isFirst ? "text-yellow-200" : "text-white/70"
-                                }`}>
-                                  {winner.position}
-                                </span>
-                              </div>
-                            </div>
-                           );
+                            );
                           })}
                       </div>
                     </div>
